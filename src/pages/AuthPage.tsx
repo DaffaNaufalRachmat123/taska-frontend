@@ -1,14 +1,17 @@
 import { FormEvent, useEffect, useState } from 'react';
-import TaskaMainLogo from '../../assets/logo/taska_main_logo.png';
-import TaskaTextLogo from '../../assets/logo/taska_text_logo.png';
-import { useAuthStore } from '../../stores/auth/auth.store';
-import Spinner from '../utilities/Loading';
-import '../../assets/css/slideUpDown.css';
-import { LoginRequest, LoginResponse } from '../../interfaces/auth-interface';
+import TaskaMainLogo from '../assets/logo/taska_main_logo.png';
+import TaskaTextLogo from '../assets/logo/taska_text_logo.png';
+import { useAuthStore } from '../stores/auth/auth.store';
+import Spinner from '../components/utilities/Loading';
+import '../assets/css/slideUpDown.css';
+import { LoginRequest, LoginResponse } from '../interfaces/auth-interface';
 import { useNavigate } from 'react-router-dom';
-import AnimatedCheck from '../views/AnimatedCheck';
+import AnimatedCheck from '../components/views/AnimatedCheck';
+import Swal from 'sweetalert2';
+import withReactContent from "sweetalert2-react-content";
+const MySwal = withReactContent(Swal)
 
-export const AuthLayout = () => {
+export const AuthPage = () => {
     const loginAdmin = useAuthStore((state) => state.login);
     const resetState = useAuthStore((state) => state.resetState)
     const response = useAuthStore((state) => state.loginState);
@@ -45,6 +48,11 @@ export const AuthLayout = () => {
                 break;
             case 'Failed':
                 setLoginStatus(true)
+                MySwal.fire(
+                    'Status',
+                    'Gagal masuk',
+                    'error'
+                )
                 resetState()
                 break;
         }

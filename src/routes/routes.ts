@@ -1,5 +1,5 @@
-import { DashboardPage } from '../components/pages/DashboardPage';
 import IcHome from '../assets/logo/ic_home.png';
+import { DashboardPage } from '../pages/DashboardPage';
 export default [
   {
     name: "Dashboard",

@@ -1,9 +1,11 @@
 // Define a generic ViewState interface with a discriminant "type" property
-export type ViewState<T> =
-    | { type: 'Loading' }
-    | { type: 'Success'; data: T }
-    | { type: 'Failed'; message: string | null; code : number }
-    | { type : 'Idle' }
+export interface ViewState<T> {
+    type: 'Loading' | 'Success' | 'Failed' | 'Idle';
+    data?: T; // Optional data for Success state
+    errors?: string; // Optional error message for Failed state
+    message?: string | null; // Optional message for Success and Failed states
+    code?: number; // Optional error code for Failed state
+}
 
 export type StatusState = 
     | { type : 'Loading' }

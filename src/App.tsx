@@ -11,9 +11,9 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/auth" />} />
-      <Route path="/admin" element={<MainLayout />}>
+      <Route path="/" element={<MainLayout />}>
           <Route index element={<DashboardPage />} />
-          <Route path="project/:projectId" element={<ProjectBoardPage />} />
+          <Route path="sprint/:sprintId" element={<ProjectBoardPage />} />
           {/* Tambahkan route lain di sini jika perlu */}
         </Route>
       <Route path="/auth" element={<AuthPage />} />

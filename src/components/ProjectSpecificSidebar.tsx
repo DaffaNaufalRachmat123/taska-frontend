@@ -25,11 +25,11 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ icon: Icon, text, href = "#",
   </a>
 );
 
-interface ProjectSpecificSidebarProps {
-  projectName?: string; // Nama proyek dari URL atau props
+interface SprintSpecificSidebarProps {
+  sprintName?: string; // Nama proyek dari URL atau props
 }
 
-const ProjectSpecificSidebar: React.FC<ProjectSpecificSidebarProps> = ({ projectName = "Chatbot for Customer..." }) => {
+const ProjectSpecificSidebar: React.FC<SprintSpecificSidebarProps> = ({ sprintName = "Chatbot for Customer..." }) => {
   return (
     <aside className="w-64 bg-gray-50 border-r border-gray-200 p-4 space-y-4 overflow-y-auto flex flex-col">
       <div>
@@ -39,7 +39,7 @@ const ProjectSpecificSidebar: React.FC<ProjectSpecificSidebarProps> = ({ project
             <HomeIcon className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-gray-800 truncate">{projectName}</h2>
+            <h2 className="text-sm font-semibold text-gray-800 truncate">{sprintName}</h2>
             <p className="text-xs text-gray-500">Software project</p>
           </div>
         </div>

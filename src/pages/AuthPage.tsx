@@ -37,7 +37,7 @@ export const AuthPage = () => {
 
     useEffect(() => {
         if(isLoggedIn){
-            setTimeout(() => { navigate('/admin') } , 450)
+            setTimeout(() => { navigate('/') } , 450)
         }
     } , [isLoggedIn])
 
@@ -69,7 +69,7 @@ export const AuthPage = () => {
             case 'Success':
                 return (
                     <div className={`absolute z-50 bg-green-600 text-white text-xs slide-down w-full text-center flex items-center justify-center ${loginStatus ? 'slide-down' : 'slide-up'}`}>
-                        {response.data.errors}
+                        {response.data?.errors}
                     </div>
                 )
             case 'Failed':

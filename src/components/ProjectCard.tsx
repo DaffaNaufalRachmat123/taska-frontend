@@ -2,24 +2,37 @@
 import React from 'react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from 'react-router-dom'; // Impor useNavigate
+import { SprintData } from '../interfaces/sprint-interface'; // Pastikan Anda memiliki tipe SprintResponse yang sesuai
 
 interface ProjectCardProps {
-  projectId: string; // Tambahkan projectId
-  projectName: string;
-  projectType: string;
-  openWorkItemsCount?: number;
+  sprint: SprintData; // Menggunakan tipe SprintResponse dari interface
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
-  projectId,
-  projectName,
-  projectType,
-  openWorkItemsCount = 0,
+  sprint
 }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/admin/project/${projectId}`);
+    navigate(`/sprint/${sprint.id}`);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short'
+    });
+  };
+
+  // Fungsi untuk menentukan warna badge berdasarkan status
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'new': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
@@ -34,28 +47,35 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         <div className="truncate">
           <h3 className="text-sm font-semibold text-gray-800 truncate">
-            {projectName}
+            {sprint.name || "Sprint Name"}
           </h3>
-          <p className="text-xs text-gray-500 truncate">{projectType}</p>
         </div>
       </div>
-      <div className="py-2 px-4">
-      {/* ... (quick links tetap sama) ... */}
-        <h4 className="text-xs font-semibold text-gray-700 mb-1">
-          Quick links
-        </h4>
-        <ul className="space-y-1 text-sm text-gray-600">
-          <li className="flex justify-between items-center hover:bg-gray-50 rounded-sm py-1 px-2">
-            <span>My open work items</span>
-            <span className="bg-gray-200 text-gray-700 rounded-full px-2 py-0.5 text-xs font-medium">{openWorkItemsCount}</span>
-          </li>
-          <li className="hover:bg-gray-50 rounded-sm py-1 px-2">
-            <span>Done work items</span>
-          </li>
-        </ul>
+      <div className="py-3 px-4">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Start Date</p>
+            <p className="font-medium">{formatDate(sprint.start_date)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">End Date</p>
+            <p className="font-medium">{formatDate(sprint.end_date)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Status</p>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sprint.status)}`}>
+              {sprint.status || "new"}
+            </span>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Creator</p>
+            <p className="font-medium truncate">{sprint.creator_name}</p>
+          </div>
+        </div>
       </div>
+      
       <div className="border-t border-gray-200 py-2 px-4 text-sm text-gray-600 flex items-center justify-between hover:bg-gray-50 rounded-b-lg">
-        <span>1 board</span>
+        <span>View board</span>
         <ChevronDownIcon className="h-4 w-4" />
       </div>
     </div>

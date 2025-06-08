@@ -14,13 +14,13 @@ const YourWorkSection: React.FC = () => {
           href="#"
           className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900"
         >
-          Worked on
+          Sprint List
         </a>
         <a
           href="#"
           className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900"
         >
-          Viewed
+          Task List
         </a>
         <a
           href="#"
@@ -30,12 +30,6 @@ const YourWorkSection: React.FC = () => {
           <span className="ml-auto inline-block py-0.5 px-2.5 text-xs font-medium rounded-full bg-gray-200 text-gray-700">
             0
           </span>
-        </a>
-        <a
-          href="#"
-          className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900"
-        >
-          Starred
         </a>
       </nav>
     </div>

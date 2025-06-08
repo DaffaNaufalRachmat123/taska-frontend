@@ -12,7 +12,7 @@ const ProjectBoardPage: React.FC = () => {
 
   return (
     <div className="flex flex-1 overflow-hidden bg-white"> {/* bg-white agar sesuai gambar */}
-      <ProjectSpecificSidebar projectName={projectId || "Project"} />
+      <ProjectSpecificSidebar sprintName={projectId || "Project"} />
       <BoardContent projectTitle={projectId ? projectId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + " Board" : "Project Board"} />
     </div>
   );

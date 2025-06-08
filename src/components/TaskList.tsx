@@ -1,33 +1,36 @@
 // src/components/TaskList.tsx
-import React from 'react';
+import React, { use, useEffect } from 'react';
 import TaskItem from './TaskItem';
-import { Task } from './types/Task';
+import { useTaskStore } from '../stores/auth/task.store';
 
-const tasksData: Task[] = [
-  { id: 'CCS-5', title: '[Sample] Implement NLP Engine', project: 'Chatbot for Customer Support', type: 'completed' },
-  { id: 'CCS-6', title: '[Sample] Design Chatbot Personality', project: 'Chatbot for Customer Support', type: 'completed' },
-  { id: 'CCS-3', title: '[Sample] Develop Frontend Interface', project: 'Chatbot for Customer Support', type: 'completed' },
-  { id: 'CCS-4', title: '[Sample] Create User Flow Diagram', project: 'Chatbot for Customer Support', type: 'completed' },
-  { id: 'CCS-1', title: '[Sample] User Interaction Design', project: 'Chatbot for Customer Support', type: 'new' },
-  { id: 'CCS-2', title: '[Sample] Chatbot Development', project: 'Chatbot for Customer Support', type: 'new' },
-];
 
-const TaskList: React.FC = () => {
+const TaskList: React.FC<{sprint_id: string; sprint_name: string}> = ({ sprint_id, sprint_name }) => {
+  const tasks = useTaskStore((state) => state.taskState);
+  const getTasks = useTaskStore((state) => state.task);
+
+  useEffect(() => {
+    if (!tasks || tasks.type === 'Idle') {
+      getTasks(sprint_id);
+    }
+  }, [sprint_id]);
+
+  console.log(tasks)
+
   return (
     // Menghilangkan p-6, bg-gray-50, overflow-y-auto dari sini karena akan dihandle parent
     // flex-grow akan membuat komponen ini mengisi ruang vertikal yang tersedia di bawah kartu
     <div className="flex-grow"> 
       <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-        IN THE LAST MONTH
+        IN THIS SPRINT
       </h3>
       <div className="bg-white shadow rounded-lg">
-        {tasksData.map(task => (
+        {tasks.data?.data.map(task => (
           <TaskItem
             key={task.id}
             id={task.id}
-            title={task.title}
-            project={task.project}
-            type={task.type}
+            name={task.name}
+            sprint={sprint_name}
+            status={task.status}
           />
         ))}
       </div>

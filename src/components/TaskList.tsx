@@ -31,6 +31,7 @@ const TaskList: React.FC<{sprint_id: string; sprint_name: string}> = ({ sprint_i
             name={task.name}
             sprint={sprint_name}
             status={task.status}
+            type={task.type}
           />
         ))}
       </div>

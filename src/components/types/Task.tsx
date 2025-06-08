@@ -4,4 +4,5 @@ export interface Task {
   name: string;
   sprint: string;
   status: string; // Atau status lain yang relevan
+  type: string;
 }

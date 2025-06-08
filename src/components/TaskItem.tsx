@@ -5,7 +5,7 @@ import { Task } from './types/Task'; // Asumsi Anda membuat src/types/index.ts
 
 interface TaskItemProps extends Task {} // Menggunakan tipe Task dari file terpisah
 
-const TaskItem: React.FC<TaskItemProps> = ({ id, name, sprint, status }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ id, name, sprint, status, type }) => {
   const isCompleted = status === 'completed';
   // Menggunakan PlusCircleIcon untuk tipe 'new' agar lebih jelas seperti di gambar
   const IconComponent = isCompleted ? CheckCircleIcon : PlusCircleIcon;
@@ -21,6 +21,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ id, name, sprint, status }) => {
             {id} - {sprint}
           </p>
         </div>
+      </div>
+      <div className="flex items-center space-x-2">
+        <span className="text-xs text-gray-500">Type</span>
+        {/** Menampilkan text tipe task - Bug atau Task dan sesuaikan warna **/}
+        <span className={`text-xs font-semibold ${type === 'bug' ? 'text-red-500' : 'text-green-500'}`}>
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </span>
       </div>
     </div>
   );

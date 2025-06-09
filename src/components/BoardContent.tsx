@@ -19,6 +19,8 @@ import { TaskData } from '../interfaces/task-interface';
 import KanbanCard from './KanbanCard';
 import { useTaskStore } from '../stores/auth/task.store';
 import { useParams } from 'react-router-dom';
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import UserFilter from './UserFilter';
 
 // Definisikan tipe untuk sebuah kolom
 export interface Column {
@@ -41,7 +43,7 @@ interface BoardContentProps {
   projectTitle?: string;
 }
 
-const BoardContent: React.FC<BoardContentProps> = ({ projectTitle = "CCS board" }) => {
+const BoardContent: React.FC<BoardContentProps> = () => {
   const { sprintId } = useParams<{ sprintId: string }>();
   const [columns] = useState<Column[]>(initialColumnsData);
   const [tasks, setTasks] = useState<TaskData[]>([]);
@@ -210,6 +212,18 @@ const BoardContent: React.FC<BoardContentProps> = ({ projectTitle = "CCS board" 
     }
   };
 
+  const handleFilterChange = (selectedUserId: string | null): void => {
+    if (selectedUserId) {
+      if (sprintId) {
+        getTasks(sprintId, { assignee_id: selectedUserId });
+      }
+    } else {
+      if (sprintId) {
+        getTasks(sprintId);
+      }
+    }
+};
+
   return (
     <main className="flex-1 flex flex-col p-6 bg-white overflow-hidden">
       {/* Header Papan */}
@@ -225,6 +239,15 @@ const BoardContent: React.FC<BoardContentProps> = ({ projectTitle = "CCS board" 
           <p className="text-gray-600">Loading tasks...</p>
         </div>
       )}
+
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          {/* <div className="relative"><MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input type="text" placeholder="Search" className="pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+          </div> */}
+          <UserFilter onFilterChange={handleFilterChange} />
+        </div>
+      </div>
 
       {/* Only render DndContext when tasks are successfully loaded */}
       {tasksState.type === 'Success' && (

@@ -3,10 +3,11 @@ import { ViewState } from "../../components/utilities/ViewState";
 import { AxiosError } from "axios";
 import axiosInstance from "../../configApi";
 import { TaskListResponse } from "../../interfaces/task-interface";
+import { objectToParams } from "../../helpers/generateUrlParams";
 
 export interface TaskState {
     taskState: ViewState<TaskListResponse>;
-    task: (sprintID: string) => Promise<void>;
+    task: (sprintID: string, filter?: Record<string, any>) => Promise<void>;
     resetState: () => void
     updateTask: (taskID: string, data: any) => Promise<void>;
     updateState: ViewState<{ updated_row: number }>;
@@ -14,7 +15,7 @@ export interface TaskState {
 
 const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     taskState: { type: 'Idle' },
-    task: async (sprintID: string) => {
+    task: async (sprintID: string, filter?: Record<string, string>) => {
         try {
             set({
                 taskState: {
@@ -22,7 +23,8 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
                 }
             })
 
-            const { data } = await axiosInstance.get<TaskListResponse>(`/v1/task/list/${sprintID}`)
+            const paramsString = filter && objectToParams(filter)
+            const { data } = await axiosInstance.get<TaskListResponse>(`/v1/task/list/${sprintID}?${paramsString || ''}`)
             set({
                 taskState: {
                     type: 'Success',
@@ -69,7 +71,7 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
         })
     },
     updateState: { type: 'Idle' },
-    updateTask: async (taskID: string, data: any) => {
+    updateTask: async (taskID: string, data: string) => {
         try {
             set({
                 updateState: {

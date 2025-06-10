@@ -6,14 +6,12 @@ import {
   BellIcon,
   QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
-import {
-  ChevronDownIcon,
-  ArrowTopRightOnSquareIcon, // Untuk "Manage account"
-  ChevronRightIcon,         // Untuk "Theme"
-} from '@heroicons/react/20/solid'; // Menggunakan 20/solid untuk ikon yang lebih kecil di dropdown
+import { useAuthStore } from '../stores/auth/auth.store';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
-  // Data pengguna (bisa datang dari props atau context nantinya)
+  const logout = useAuthStore((store) => store.logout)
+  const navigate = useNavigate()
   const user = {
     name: 'Daffa',
     email: 'daffarachmatnaufal@gmail.com',
@@ -25,13 +23,12 @@ const Navbar: React.FC = () => {
       <div className="flex items-center">
         {/* Logo and Main Navigation */}
         <div className="flex items-center space-x-4">
-          <div className="text-blue-600 font-bold text-xl">Jira</div>
+          <div className="text-blue-600 font-bold text-xl">Taska</div>
           {/* ... (menu navigasi lainnya tetap sama) ... */}
-          <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Your work</a>
-          <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">Projects <ChevronDownIcon className="h-5 w-5 ml-1" /></a>
+          {/* <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">Projects <ChevronDownIcon className="h-5 w-5 ml-1" /></a>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
             Create
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -97,6 +94,10 @@ const Navbar: React.FC = () => {
                       className={`${
                         active ? 'bg-gray-100' : ''
                       } block w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100`}
+                      onClick={() => {
+                        logout()
+                        navigate('/auth')
+                      }}
                     >
                       Log out
                     </a>

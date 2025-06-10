@@ -5,6 +5,10 @@ export interface SprintResponse {
     errors : string
 }
 
+export interface SprintListResponse {
+    data : SprintData[];
+    errors : string
+}
 
 export interface SprintData {
     id: string;

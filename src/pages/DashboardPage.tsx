@@ -29,6 +29,8 @@ export const DashboardPage: React.FC = () => {
             {response.type === 'Success' && (
               <ProjectCard
                 sprint={response.data?.data as SprintData}
+                isDropdownOpen={false}
+                onToggleDropdown={() => {}}
               />
             )}
           </div>

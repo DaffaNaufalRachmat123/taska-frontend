@@ -27,11 +27,7 @@ const TaskList: React.FC<{sprint_id: string; sprint_name: string}> = ({ sprint_i
         {tasks.data?.data.map(task => (
           <TaskItem
             key={task.id}
-            id={task.id}
-            name={task.name}
-            sprint={sprint_name}
-            status={task.status}
-            type={task.type}
+            task={task}
           />
         ))}
       </div>

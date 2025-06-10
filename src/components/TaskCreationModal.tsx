@@ -12,13 +12,8 @@ interface TaskModalProps {
     onSubmit: (taskData: TaskFormData) => void;
     taskToEdit?: TaskData | null;
     sprint: SprintData | null;
+    disableSelectSprint?: boolean; // Optional prop to disable sprint selection
 }
-
-// Define some mock users and sprints for the dropdowns
-const mockSprints = [
-    { id: 'sprint-1', name: 'Sprint Alpha' },
-    { id: 'sprint-2', name: 'Sprint Beta' },
-];
 
 const initialFormData: TaskFormData = {
     name: '',
@@ -30,7 +25,7 @@ const initialFormData: TaskFormData = {
     assignee_id: '',
 };
 
-const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, taskToEdit, sprint }) => {
+const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, taskToEdit, sprint, disableSelectSprint }) => {
     const [formData, setFormData] = useState<TaskFormData>(initialFormData);
     const isEditMode = !!taskToEdit;
     const users = useUserStore(state => state.userState);
@@ -186,14 +181,13 @@ const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit
                             Sprint
                         </label>
                         <div className="relative">
-                            {/* The actual, invisible select box, now populated with all sprints */}
                             <select 
                                 id="sprint_id" 
                                 name="sprint_id" 
                                 value={formData.sprint_id} 
                                 onChange={handleChange} 
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                // The disabled attribute is removed to make it editable
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                disabled={disableSelectSprint}
                             >
                                 <option value="">No Sprint</option>
                                 { sprintConfigs.type === 'Success' && sprintConfigs.data?.data.map(s => <option key={s.id} value={s.id}>{s.name}</option>) }

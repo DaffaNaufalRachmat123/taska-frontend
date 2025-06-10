@@ -15,12 +15,15 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
-import { TaskData } from '../interfaces/task-interface';
+import { TaskData, TaskFormData } from '../interfaces/task-interface';
 import KanbanCard from './KanbanCard';
 import { useTaskStore } from '../stores/auth/task.store';
 import { useParams } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import UserFilter from './UserFilter';
+import TaskCreationModal from './TaskCreationModal';
+import { SprintData } from '../interfaces/sprint-interface';
+import { useSprintStore } from '../stores/auth/sprint.store';
 
 // Definisikan tipe untuk sebuah kolom
 export interface Column {
@@ -52,6 +55,9 @@ const BoardContent: React.FC<BoardContentProps> = () => {
   const getTasks = useTaskStore((state) => state.task);
   const tasksState = useTaskStore((state) => state.taskState);
   const updateTaskInStore = useTaskStore((state) => state.updateTask);
+  const createTask = useTaskStore((state) => state.createTask);
+  const sprintConfig = useSprintStore((state) => state.sprintConfig);
+  const sprintConfigState = useSprintStore((state) => state.sprintConfigState);
 
   // This ref stores the tasks array that was active *before* a drag started
   // It's used for reverting UI if a drag operation is invalid or cancelled
@@ -60,8 +66,9 @@ const BoardContent: React.FC<BoardContentProps> = () => {
   useEffect(() => {
     if (sprintId) {
       getTasks(sprintId);
+      sprintConfig();
     }
-  }, [sprintId, getTasks]);
+  }, [sprintId, getTasks, sprintConfig]);
 
   useEffect(() => {
     // This effect updates local 'tasks' state whenever the store's 'tasksState' changes.
@@ -213,16 +220,45 @@ const BoardContent: React.FC<BoardContentProps> = () => {
   };
 
   const handleFilterChange = (selectedUserId: string | null): void => {
-    if (selectedUserId) {
-      if (sprintId) {
-        getTasks(sprintId, { assignee_id: selectedUserId });
+      if (selectedUserId) {
+        if (sprintId) {
+          getTasks(sprintId, { assignee_id: selectedUserId });
+        }
+      } else {
+        if (sprintId) {
+          getTasks(sprintId);
+        }
       }
-    } else {
-      if (sprintId) {
-        getTasks(sprintId);
+  };
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sprintForNewTask, setSprintForNewTask] = useState<SprintData | null>(null);
+  
+  const handleOpenAddTaskModal = () => {
+      const sprint = sprintConfigState.type === 'Success' && sprintConfigState.data?.data.find(s => s.id === sprintId);
+      if (!sprint) {
+          return;
       }
-    }
-};
+
+      setSprintForNewTask(sprint);
+      setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+      setIsModalOpen(false);
+      setSprintForNewTask(null);
+  };
+
+  const handleSubmitTask = async (taskData: TaskFormData) => {
+      await createTask(taskData);
+
+      if (sprintForNewTask) {
+          getTasks(sprintForNewTask.id);
+      }
+
+      handleCloseModal();
+  };
+
 
   return (
     <main className="flex-1 flex flex-col p-6 bg-white overflow-hidden">
@@ -262,7 +298,7 @@ const BoardContent: React.FC<BoardContentProps> = () => {
             {columns.map(column => {
               const columnTasks = tasks.filter(task => task.status === column.status);
               return (
-                <KanbanColumn key={column.id} column={{ ...column, tasks: columnTasks }} />
+                <KanbanColumn key={column.id} column={{ ...column, tasks: columnTasks }} onClickAddTask={handleOpenAddTaskModal} />
               );
             })}
           </div>
@@ -277,8 +313,14 @@ const BoardContent: React.FC<BoardContentProps> = () => {
         </DndContext>
       )}
 
-      {/* Quickstart button */}
-      <button className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center text-sm"><StarIconOutline className="h-5 w-5 mr-2" /> Quickstart</button>
+      {/* Modal untuk membuat task baru */}
+      <TaskCreationModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmitTask}
+          sprint={sprintForNewTask}
+          disableSelectSprint={true} // Disable sprint selection in modal
+      />
     </main>
   );
 };

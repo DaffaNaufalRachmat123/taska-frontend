@@ -15,7 +15,6 @@ const SprintPage: React.FC = () => {
     const resetTaskState = useTaskStore((state) => state.resetState);
 
     const createTask = useTaskStore((state) => state.createTask);
-    const createTaskState = useTaskStore((state) => state.createTaskState);
     const getTask = useTaskStore((state) => state.task);
 
     useEffect(() => {
@@ -32,28 +31,22 @@ const SprintPage: React.FC = () => {
         resetTaskState();
     };
 
-    // ✨ State for the Task Modal ✨
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // State to hold the sprint ID for the new task
     const [sprintForNewTask, setSprintForNewTask] = useState<SprintData | null>(null);
 
-    // ✨ Handler to open the modal ✨
     const handleOpenAddTaskModal = (sprint: SprintData) => {
         setSprintForNewTask(sprint);
         setIsModalOpen(true);
     };
 
-    // ✨ Handler to close the modal ✨
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSprintForNewTask(null);
     };
 
-    // ✨ Handler to submit the new task ✨
     const handleSubmitTask = async (taskData: TaskFormData) => {
         await createTask(taskData);
 
-        // Optionally, you can refresh the task list for the sprint
         if (sprintForNewTask) {
             getTask(sprintForNewTask.id);
         }

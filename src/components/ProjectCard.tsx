@@ -1,6 +1,6 @@
 // src/components/ProjectCard.tsx
 import React, { useEffect, useState } from 'react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from 'react-router-dom'; // Impor useNavigate
 import { SprintData } from '../interfaces/sprint-interface'; // Pastikan Anda memiliki tipe SprintResponse yang sesuai
 import { TaskData } from '../interfaces/task-interface';
@@ -11,12 +11,14 @@ interface ProjectCardProps {
   sprint: SprintData; // Menggunakan tipe SprintResponse dari interface
   isDropdownOpen: boolean; // Menambahkan properti untuk mengontrol dropdown
   onToggleDropdown: (sprintId: string) => void; // Fungsi untuk mengubah status dropdown
+  onAddTask: (sprint: SprintData) => void; // Fungsi untuk membuka modal penambahan task
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   sprint,
   isDropdownOpen,
-  onToggleDropdown
+  onToggleDropdown,
+  onAddTask, // Fungsi untuk membuka modal penambahan task
 }) => {
   const taskList = useTaskStore(state => state.taskState);
   const getTask = useTaskStore(state => state.task);
@@ -97,7 +99,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
       </div>
       
-      {/* Footer Section with conditional logic */}
       <div
         className="border-t border-gray-200 py-2 px-4 text-sm text-gray-600 flex items-center justify-between hover:bg-gray-50 rounded-b-lg cursor-pointer"
         onClick={isActive ? handleCardClick : handleToggleTasks}
@@ -106,22 +107,29 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
       </div>
 
-      {/* Collapsible Task List */}
       {isDropdownOpen && !isActive && (
         <div className="border-t border-gray-200 bg-gray-50 p-3">
           <h4 className="text-xs font-bold text-gray-600 mb-2 px-1">Tasks</h4>
           <ul className="space-y-1">
+            {taskList.type === 'Loading' && <li className="text-sm text-gray-500 p-1">Loading tasks...</li>}
             {taskList.type === 'Success' && taskList.data?.data && taskList.data?.data.length > 0 ? (
-              taskList.data?.data.map(t => (
-                <TaskItem
-                  task={t}
-                  key={t.id}
-                />
-              ))
+              taskList.data.data.map(t => <TaskItem task={t} key={t.id} />)
             ) : (
-              <li className="text-sm text-gray-500 p-1">No tasks in this sprint.</li>
+              taskList.type !== 'Loading' && <li className="text-sm text-gray-500 p-1">No tasks in this sprint.</li>
             )}
           </ul>
+          {sprint.status !== 'completed' && (
+              <div
+                  onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      onAddTask(sprint); // Trigger parent to open modal
+                  }}
+                  className="mt-2 p-2 text-sm text-gray-500 hover:bg-gray-200 hover:text-gray-700 rounded-md flex items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 hover:border-gray-400"
+              >
+                  <PlusIcon className="h-4 w-4 mr-2" />
+                  Add task
+              </div>
+          )}
         </div>
       )}
     </div>

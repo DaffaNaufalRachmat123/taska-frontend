@@ -11,6 +11,8 @@ export interface SprintState {
     resetState: () => void
     sprintList: (filter?: Record<string, any>) => Promise<void>;
     sprintListState: ViewState<SprintListResponse>;
+    sprintConfig: () => Promise<void>;
+    sprintConfigState: ViewState<SprintListResponse>;
 }
 
 const storeSprintApi: StateCreator<SprintState> = (set) => ({
@@ -119,7 +121,57 @@ const storeSprintApi: StateCreator<SprintState> = (set) => ({
             }, 200)
         }
     },
-    sprintListState: { type: 'Idle' }
+    sprintListState: { type: 'Idle' },
+    sprintConfigState: { type: 'Idle' },
+    sprintConfig: async () => {
+        try {
+            set({
+                sprintConfigState: {
+                    type: 'Loading'
+                }
+            })
+
+            const { data } = await axiosInstance.get<SprintListResponse>(`/v1/sprint/config`)
+            set({
+                sprintConfigState: {
+                    type: 'Success',
+                    data: data
+                },
+            })
+        } catch (error) {
+            setTimeout(() => {
+                console.error(error)
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status === 400) {
+                        set({
+                            sprintConfigState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            sprintConfigState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        sprintConfigState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    }
 })
 
 export const useSprintStore = create<SprintState>()(

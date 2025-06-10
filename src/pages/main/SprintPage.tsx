@@ -4,6 +4,9 @@ import YourWorkSection from '../../components/YourWorkSection';
 import ProjectCard from '../../components/ProjectCard';
 import { useSprintStore } from '../../stores/auth/sprint.store';
 import { useTaskStore } from '../../stores/auth/task.store';
+import TaskCreationModal from '../../components/TaskCreationModal';
+import { TaskFormData } from '../../interfaces/task-interface';
+import { SprintData } from '../../interfaces/sprint-interface';
 
 
 const SprintPage: React.FC = () => {
@@ -11,12 +14,15 @@ const SprintPage: React.FC = () => {
     const getSprintlist = useSprintStore((state) => state.sprintList);
     const resetTaskState = useTaskStore((state) => state.resetState);
 
+    const createTask = useTaskStore((state) => state.createTask);
+    const getTask = useTaskStore((state) => state.task);
+
     useEffect(() => {
         if (!sprintList.type || sprintList.type === 'Idle') {
             getSprintlist();
         }
     }
-    , [sprintList.type, getSprintlist]);
+    , [sprintList.type, getSprintlist, getTask]);
 
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
@@ -25,23 +31,54 @@ const SprintPage: React.FC = () => {
         resetTaskState();
     };
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sprintForNewTask, setSprintForNewTask] = useState<SprintData | null>(null);
+
+    const handleOpenAddTaskModal = (sprint: SprintData) => {
+        setSprintForNewTask(sprint);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSprintForNewTask(null);
+    };
+
+    const handleSubmitTask = async (taskData: TaskFormData) => {
+        await createTask(taskData);
+
+        if (sprintForNewTask) {
+            getTask(sprintForNewTask.id);
+        }
+
+        handleCloseModal();
+    };
+
     return (
         <div className="flex flex-1 overflow-hidden">
-        <YourWorkSection />
-        <main className="flex-1 flex flex-col p-6 bg-gray-50 overflow-y-auto">
-            <div className="mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                {
-                    sprintList.type === 'Success' && sprintList.data?.data.map((sprint) => (
-                        <ProjectCard
-                            sprint={sprint}
-                            isDropdownOpen={openDropdownId === sprint.id}
-                            onToggleDropdown={handleToggleDropdown}
-                        />
-                    ))}
-            </div>
-            </div>
-        </main>
+            <YourWorkSection />
+            <main className="flex-1 flex flex-col p-6 bg-gray-50 overflow-y-auto">
+                <div className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    {
+                        sprintList.type === 'Success' && sprintList.data?.data.map((sprint) => (
+                            <ProjectCard
+                                key={sprint.id}
+                                sprint={sprint}
+                                isDropdownOpen={openDropdownId === sprint.id}
+                                onToggleDropdown={handleToggleDropdown}
+                                onAddTask={handleOpenAddTaskModal}
+                            />
+                        ))}
+                </div>
+                </div>
+            </main>
+            <TaskCreationModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmitTask}
+                sprintID={sprintForNewTask?.id as string}
+            />
         </div>
     );
 };

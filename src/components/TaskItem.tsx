@@ -2,10 +2,11 @@
 import React from 'react';
 import { CheckCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { Task } from './types/Task'; // Asumsi Anda membuat src/types/index.ts
+import { TaskData } from '../interfaces/task-interface';
+ // Menggunakan tipe Task dari file terpisah
 
-interface TaskItemProps extends Task {} // Menggunakan tipe Task dari file terpisah
-
-const TaskItem: React.FC<TaskItemProps> = ({ id, name, sprint, status, type }) => {
+const TaskItem: React.FC<{ task: TaskData }> = ({ task }) => {
+  const { id, name, sprint_id, status, type } = task;
   const isCompleted = status === 'completed';
   // Menggunakan PlusCircleIcon untuk tipe 'new' agar lebih jelas seperti di gambar
   const IconComponent = isCompleted ? CheckCircleIcon : PlusCircleIcon;
@@ -18,7 +19,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ id, name, sprint, status, type }) =
         <div>
           <p className="text-sm font-medium text-gray-800">{name}</p>
           <p className="text-xs text-gray-500">
-            {id} - {sprint}
+            {id} - {sprint_id}
           </p>
         </div>
       </div>

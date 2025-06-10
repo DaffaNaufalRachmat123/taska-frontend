@@ -29,7 +29,10 @@ export const DashboardPage: React.FC = () => {
         return (
           <>
             <ProjectCard
-              sprint={response.data?.data as SprintData}/>
+              sprint={response.data?.data as SprintData}
+              isDropdownOpen={false}
+              onToggleDropdown={() => {}}
+            />
           </>
         )
       case 'Failed':

@@ -1,32 +1,52 @@
 // src/components/ProjectCard.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from 'react-router-dom'; // Impor useNavigate
 import { SprintData } from '../interfaces/sprint-interface'; // Pastikan Anda memiliki tipe SprintResponse yang sesuai
+import { TaskData } from '../interfaces/task-interface';
+import TaskItem from './TaskItem';
+import { useTaskStore } from '../stores/auth/task.store';
 
 interface ProjectCardProps {
   sprint: SprintData; // Menggunakan tipe SprintResponse dari interface
+  isDropdownOpen: boolean; // Menambahkan properti untuk mengontrol dropdown
+  onToggleDropdown: (sprintId: string) => void; // Fungsi untuk mengubah status dropdown
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
-  sprint
+  sprint,
+  isDropdownOpen,
+  onToggleDropdown
 }) => {
-  const navigate = useNavigate();
+  const taskList = useTaskStore(state => state.taskState);
+  const getTask = useTaskStore(state => state.task);
 
-  const handleClick = () => {
-    navigate(`/sprint/${sprint.id}`);
+  useEffect(() => {
+    if (sprint.id) {
+      getTask(sprint.id);
+    }
+  }
+  , [sprint.id, isDropdownOpen, getTask]);
+
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    if (sprint.status.toLowerCase() === 'active') {
+      navigate(`/board/${sprint.id}`);
+    } else {
+      navigate(`/sprint/${sprint.id}`);
+    }
+  };
+
+  const handleToggleTasks = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleDropdown(sprint.id);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
+    return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
-  // Fungsi untuk menentukan warna badge berdasarkan status
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800';
@@ -36,9 +56,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
+  const isActive = sprint.status.toLowerCase() === 'active';
+
   return (
     // Tambahkan onClick pada div terluar dan cursor-pointer
-    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={handleClick}>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={handleCardClick}>
       <div className="bg-gray-100 py-3 px-4 flex items-center space-x-2">
         {/* ... (ikon dan nama proyek tetap sama) ... */}
         <div className="bg-blue-500 rounded-md p-2 text-white">
@@ -75,10 +97,33 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
       </div>
       
-      <div className="border-t border-gray-200 py-2 px-4 text-sm text-gray-600 flex items-center justify-between hover:bg-gray-50 rounded-b-lg">
-        <span>View board</span>
-        <ChevronDownIcon className="h-4 w-4" />
+      {/* Footer Section with conditional logic */}
+      <div
+        className="border-t border-gray-200 py-2 px-4 text-sm text-gray-600 flex items-center justify-between hover:bg-gray-50 rounded-b-lg cursor-pointer"
+        onClick={isActive ? handleCardClick : handleToggleTasks}
+      >
+        <span>{isActive ? 'View board' : 'View tasks'}</span>
+        <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
       </div>
+
+      {/* Collapsible Task List */}
+      {isDropdownOpen && !isActive && (
+        <div className="border-t border-gray-200 bg-gray-50 p-3">
+          <h4 className="text-xs font-bold text-gray-600 mb-2 px-1">Tasks</h4>
+          <ul className="space-y-1">
+            {taskList.type === 'Success' && taskList.data?.data && taskList.data?.data.length > 0 ? (
+              taskList.data?.data.map(t => (
+                <TaskItem
+                  task={t}
+                  key={t.id}
+                />
+              ))
+            ) : (
+              <li className="text-sm text-gray-500 p-1">No tasks in this sprint.</li>
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,7 +9,7 @@ const RightSidebar: React.FC = () => {
          <span className="text-sm text-center p-2">[Idea 💡 → Epic 🌠 illustration placeholder]</span>
       </div>
       <h3 className="text-lg font-semibold text-gray-800">
-        Jira Product Discovery
+        Taska Product Discovery
       </h3>
       <p className="text-sm text-gray-600 mt-1">
         Build the right features, the right way. Prioritize your ideas then

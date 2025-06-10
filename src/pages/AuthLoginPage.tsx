@@ -11,8 +11,8 @@ import Swal from 'sweetalert2';
 import withReactContent from "sweetalert2-react-content";
 const MySwal = withReactContent(Swal)
 
-export const AuthPage = () => {
-    const loginAdmin = useAuthStore((state) => state.login);
+export const AuthLoginPage = () => {
+    const login = useAuthStore((state) => state.login);
     const resetState = useAuthStore((state) => state.resetState)
     const response = useAuthStore((state) => state.loginState);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
@@ -20,10 +20,22 @@ export const AuthPage = () => {
     const [mail, setMail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [loginStatus, setLoginStatus] = useState<boolean>(false)
+    const [submit , setSubmit] = useState<boolean>(false)
+    const [mailError , setMailError] = useState<boolean>()
+    const [passError , setPassError] = useState<boolean>()
     const navigate = useNavigate()
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
+        setSubmit(true)
+
+        if(mail == ''){
+            setMailError(true)
+        }
+
+        if(password == ''){
+            setPassError(true)
+        }
 
         if (mail != '' && password != '') {
             const logReq: LoginRequest = {
@@ -31,7 +43,7 @@ export const AuthPage = () => {
                 password: password,
             };
 
-            loginAdmin(logReq);
+            login(logReq);
         }
     };
 
@@ -119,7 +131,7 @@ export const AuthPage = () => {
                         <div className="relative flex items-center justify-between h-16">
                             <div className="flex items-center">
                                 <img
-                                    style={{ width: '70px', height: '50px' }}
+                                    style={{ width: '70px', height: '60px' }}
                                     src={TaskaTextLogo}
                                     alt="Suberes Text Logo"
                                 />
@@ -130,34 +142,62 @@ export const AuthPage = () => {
             </div>
 
             {/* Centered Form */}
-            <div className="flex-grow flex items-center justify-center">
-                <div className="inline-block m-0 sm:m-5 bg-white shadow-[10px_10px_15px_rgba(0,0,0,0.2)] sm:rounded-lg justify-center relative">
+            <div className="flex-grow flex items-center justify-center p-4">
+                <div className="w-full max-w-md bg-white shadow-xl sm:rounded-lg justify-center relative overflow-hidden">
                     {buildLoginStatus()}
                     <div className="p-6 sm:p-12">
                         <div className="flex flex-col items-center">
-                            <img
-                                style={{ width: '200px', height: '200px' }}
-                                src={TaskaMainLogo}
-                                alt="Logo"
-                            />
-                            <div className="w-full flex-1 mt-8">
+                             {/* Using a placeholder for the logo */}
+                             <img
+                                 className="w-40 h-40"
+                                 src={TaskaMainLogo}
+                                 alt="Logo"
+                             />
+                            <h1 className="text-2xl font-semibold text-blue-600 mt-4 mb-4">
+                                Masuk
+                            </h1>
+                            <div className="w-full flex-1 mt-4">
                                 <div className="mx-auto max-w-xs">
-                                    <form onSubmit={handleSubmit}>
-                                        <input
-                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                                            type="email"
-                                            placeholder="Email"
-                                            value={mail}
-                                            onChange={(e) => setMail(e.target.value)}
-                                        />
-                                        <input
-                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                            type="password"
-                                            placeholder="Password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                        />
+                                    <form onSubmit={handleSubmit} noValidate>
+                                        <div className="mb-5">
+                                            <input
+                                                className={`w-full px-4 py-4 rounded-lg font-medium bg-gray-100 border ${submit && mailError ? 'border-red-500' : 'border-gray-200'} placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white`}
+                                                type="email"
+                                                placeholder="Email"
+                                                value={mail}
+                                                onChange={(e) => {
+                                                    setMail(e.target.value);
+                                                    setMailError(e.target.value.length == 0)
+                                                }}
+                                            />
+                                            {submit && mailError && (
+                                                <p className="text-xs text-red-500 mt-1">Please enter an email</p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <input
+                                                className={`w-full px-4 py-4 rounded-lg font-medium bg-gray-100 border ${submit && passError ? 'border-red-500' : 'border-gray-200'} placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white`}
+                                                type="password"
+                                                placeholder="Password"
+                                                value={password}
+                                                onChange={(e) => {
+                                                    setPassword(e.target.value);
+                                                    setPassError(e.target.value.length == 0)
+                                                }}
+                                            />
+                                            {submit && passError && (
+                                                <p className="text-xs text-red-500 mt-1">Please enter password</p>
+                                            )}
+                                        </div>
                                         {buildLoginButton()}
+                                        <p className="mt-6 text-sm text-gray-600 text-center">
+                                            Belum punya akun?{' '}
+                                            <a style={{ cursor : 'pointer' }} onClick={() => {
+                                                navigate('/auth/register')
+                                            }} className="font-semibold text-blue-600 hover:text-blue-800">
+                                                Daftar di sini
+                                            </a>
+                                        </p>
                                     </form>
                                 </div>
                             </div>
@@ -173,12 +213,12 @@ export const AuthPage = () => {
                     <div className="max-w-9xl mx-auto px-2 sm:px-6 lg:px-5">
                         <div className="relative flex items-center justify-between h-16">
                             <div className="flex justify-center items-center space-x-1">
-                                <span className="text-sm text-gray-500">© 2024</span>
-                                <span className="text-sm text-blue-500">Suberes Team</span>
+                                <span className="text-sm text-gray-500">© 2025</span>
+                                <span className="text-sm text-blue-500">Taska Team</span>
                             </div>
                             <div className="flex-1 flex items-center justify-end space-x-4">
                                 <div className="relative">
-                                    <p className="text-sm text-gray-400">Suberes Team</p>
+                                    <p className="text-sm text-gray-400">Taska Team</p>
                                 </div>
                             </div>
                         </div>

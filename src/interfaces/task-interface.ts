@@ -25,3 +25,13 @@ export interface TaskData {
     assignee_name?: string | null;
     logs?: Log[];
 }
+
+export interface TaskFormData {
+    name: string;
+    description: string;
+    sprint_id: string;
+    type: string;
+    priority?: number;
+    story_point?: number;
+    assignee_id?: string;
+}

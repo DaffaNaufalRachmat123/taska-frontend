@@ -31,6 +31,7 @@ export const DashboardPage: React.FC = () => {
                 sprint={response.data?.data as SprintData}
                 isDropdownOpen={false}
                 onToggleDropdown={() => {}}
+                onAddTask={() => {}}
               />
             )}
           </div>

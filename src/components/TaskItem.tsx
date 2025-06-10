@@ -1,14 +1,11 @@
 // src/components/TaskItem.tsx
 import React from 'react';
 import { CheckCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
-import { Task } from './types/Task'; // Asumsi Anda membuat src/types/index.ts
 import { TaskData } from '../interfaces/task-interface';
- // Menggunakan tipe Task dari file terpisah
 
 const TaskItem: React.FC<{ task: TaskData }> = ({ task }) => {
   const { id, name, sprint_id, status, type } = task;
   const isCompleted = status === 'completed';
-  // Menggunakan PlusCircleIcon untuk tipe 'new' agar lebih jelas seperti di gambar
   const IconComponent = isCompleted ? CheckCircleIcon : PlusCircleIcon;
   const iconColor = isCompleted ? 'text-blue-500' : 'text-purple-500';
 
@@ -25,7 +22,6 @@ const TaskItem: React.FC<{ task: TaskData }> = ({ task }) => {
       </div>
       <div className="flex items-center space-x-2">
         <span className="text-xs text-gray-500">Type</span>
-        {/** Menampilkan text tipe task - Bug atau Task dan sesuaikan warna **/}
         <span className={`text-xs font-semibold ${type === 'bug' ? 'text-red-500' : 'text-green-500'}`}>
           {type.charAt(0).toUpperCase() + type.slice(1)}
         </span>

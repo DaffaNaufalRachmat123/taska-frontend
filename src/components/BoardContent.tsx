@@ -318,7 +318,7 @@ const BoardContent: React.FC<BoardContentProps> = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onSubmit={handleSubmitTask}
-          sprint={sprintForNewTask}
+          sprintID={sprintForNewTask?.id as string}
           disableSelectSprint={true} // Disable sprint selection in modal
       />
     </main>

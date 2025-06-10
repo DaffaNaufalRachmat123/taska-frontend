@@ -77,7 +77,7 @@ const SprintPage: React.FC = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 onSubmit={handleSubmitTask}
-                sprint={sprintForNewTask}
+                sprintID={sprintForNewTask?.id as string}
             />
         </div>
     );

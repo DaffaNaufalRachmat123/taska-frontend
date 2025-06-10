@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { TaskData, TaskFormData } from '../interfaces/task-interface';
 import { useUserStore } from '../stores/auth/user.store';
-import { SprintData } from '../interfaces/sprint-interface';
 import { useSprintStore } from '../stores/auth/sprint.store';
 
 interface TaskModalProps {
@@ -11,7 +10,7 @@ interface TaskModalProps {
     onClose: () => void;
     onSubmit: (taskData: TaskFormData) => void;
     taskToEdit?: TaskData | null;
-    sprint: SprintData | null;
+    sprintID: String | null;
     disableSelectSprint?: boolean; // Optional prop to disable sprint selection
 }
 
@@ -25,7 +24,7 @@ const initialFormData: TaskFormData = {
     assignee_id: '',
 };
 
-const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, taskToEdit, sprint, disableSelectSprint }) => {
+const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit, taskToEdit, sprintID, disableSelectSprint }) => {
     const [formData, setFormData] = useState<TaskFormData>(initialFormData);
     const isEditMode = !!taskToEdit;
     const users = useUserStore(state => state.userState);
@@ -51,16 +50,16 @@ const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit
                 setFormData({
                     ...taskToEdit,
                     assignee_id: taskToEdit.assignee_id || '',
-                    sprint_id: sprint?.id as string
+                    sprint_id: sprintID as string
                 });
             } else {
                 setFormData({
                     ...initialFormData,
-                    sprint_id: sprint?.id || '',
+                    sprint_id: sprintID as string || '',
                 });
             }
         }
-    }, [isOpen, taskToEdit, sprint]);
+    }, [isOpen, taskToEdit, sprintID]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -149,20 +148,18 @@ const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit
                         </label>
                         <div className="relative">
                             {/* The actual, invisible select box */}
-                            <select id="assignee_id" name="assignee_id" value={formData.assignee_id} onChange={handleChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <select id="assignee_id" name="assignee_id" value={formData?.assignee_id || ''} onChange={handleChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <option value="">Unassigned</option>
                                 {users.type === "Success" && (users.data?.data || []).map(user => <option key={user.id} value={user.id}>{user.name}</option>)}
                             </select>
                             
-                            {/* The visible, custom-styled element */}
                             <div className="flex items-center space-x-2 p-1.5 pl-2 bg-gray-100 rounded-md border border-gray-200 hover:border-gray-400 transition-colors">
                                 {(() => {
-                                    if (!formData.assignee_id) {
+                                    if (!formData.assignee_id || formData.assignee_id === '') {
                                         return <><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z" clipRule="evenodd" /></svg><span className="text-gray-500">Unassigned</span></>;
                                     }
                                     const user = users.data?.data.find(u => u.id === formData.assignee_id);
                                     if (!user) return null;
-                                    // Simple color hashing for consistent avatar colors
                                     const colors = ['bg-red-200 text-red-800', 'bg-green-200 text-green-800', 'bg-blue-200 text-blue-800', 'bg-yellow-200 text-yellow-800', 'bg-purple-200 text-purple-800'];
                                     const color = colors[user.name.charCodeAt(0) % colors.length];
                                     return <>

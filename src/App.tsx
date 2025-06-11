@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import ProjectBoardPage from './pages/main/ProjectBoardPage';
 import { AuthRegisterPage } from './pages/AuthRegisterPage';
 import SprintPage from './pages/main/SprintPage';
+import TaskDetailPage from './pages/main/TaskDetailPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path='sprint' element={<SprintPage />}/>
           <Route path='board/:sprintId' element={<ProjectBoardPage />} />
+          <Route path='task/:id' element={<TaskDetailPage />} />
       </Route>
       <Route path="/auth" element={<AuthLoginPage />} />
       <Route path="/auth/register" element={<AuthRegisterPage/>}/>

@@ -6,6 +6,7 @@ import { ArrowPathIcon, BugAntIcon, EllipsisVerticalIcon, TicketIcon, UserCircle
 import TaskCreationModal from './TaskCreationModal';
 import { SprintData } from '../interfaces/sprint-interface';
 import { useTaskStore } from '../stores/auth/task.store';
+import { TaskDetailModal } from './TaskDetailModal';
 
 interface TaskItemProps {
   task: TaskData;
@@ -61,6 +62,19 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       handleOpenAddTaskModal()
     };
 
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+    const handleOpenDetailModal = () => {
+      setDetailModalOpen(true);
+    };
+
+    const handleCloseDetailModal = () => {
+      setDetailModalOpen(false);
+    };
+
+    const handleTaskClick = () => {
+      handleOpenDetailModal();
+    };
     
     return (
       // Add 'group' to enable group-hover for the action button
@@ -101,6 +115,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           >
             <EllipsisVerticalIcon className="h-5 w-5" />
           </button>
+          {/* Clickable Task Item to open detail modal */}
+          <button
+            onClick={handleTaskClick}
+            className="p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-200 hover:text-gray-600 focus:opacity-100 transition-opacity"
+          >
+            <DocumentMagnifyingGlassIcon className="h-5 w-5" />
+          </button>
         </div>
 
         { /** Modal Edit Task */}
@@ -111,6 +132,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           sprintID={task.sprint_id as string}
           taskToEdit={task}
         />
+
+        { /** Modal Task Detail */}
+        <TaskDetailModal key={task.id} taskId={task.id} isOpen={detailModalOpen} onClose={handleCloseDetailModal} />
       </div>
   );
 };

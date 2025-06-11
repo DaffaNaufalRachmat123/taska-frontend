@@ -21,7 +21,7 @@ export interface TaskData {
     reporter_id: string;
     assignee_id?: string | null;
     type: string;
-    reporter_name?: string | null;
+    reporter_name: string;
     assignee_name?: string | null;
     logs?: Log[];
 }

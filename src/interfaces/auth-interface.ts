@@ -11,6 +11,7 @@ export interface RegisterResponse {
 export interface LoginData {
     token : string;
     expired_at : string;
+    role : string;
     lifetime : number;
 }
 

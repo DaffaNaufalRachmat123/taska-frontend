@@ -9,6 +9,7 @@ export interface AuthState {
     loginState: ViewState<LoginResponse>;
     registerState : ViewState<RegisterResponse>;
     isLoggedIn: boolean;
+    role : string;
     token: string;
     login: (request: LoginRequest) => Promise<void>;
     register : (request : RegisterRequest) => Promise<void>;
@@ -20,6 +21,7 @@ const storeAuthApi: StateCreator<AuthState> = (set) => ({
     loginState: { type: 'Idle' },
     registerState : { type : 'Idle' },
     isLoggedIn: false,
+    role : '',
     token: '',
     login: async (request: LoginRequest) => {
         try {
@@ -38,6 +40,7 @@ const storeAuthApi: StateCreator<AuthState> = (set) => ({
                     data: data
                 },
                 isLoggedIn: true,
+                role : data.data.role,
                 token: data.data.token
             })
         } catch (error) {

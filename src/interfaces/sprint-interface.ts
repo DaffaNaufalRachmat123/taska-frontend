@@ -22,3 +22,7 @@ export interface SprintData {
     logs?: Log[];
     creator_name?: string;
 }
+export interface SprintCreateResponse {
+    data : SprintData;
+    errors : string | null;
+}

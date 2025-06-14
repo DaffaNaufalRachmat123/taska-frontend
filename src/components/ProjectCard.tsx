@@ -62,7 +62,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     // Tambahkan onClick pada div terluar dan cursor-pointer
-    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={handleCardClick}>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer mb-5 hover:shadow-lg transition-shadow" onClick={handleCardClick}>
       <div className="bg-gray-100 py-3 px-4 flex items-center space-x-2">
         {/* ... (ikon dan nama proyek tetap sama) ... */}
         <div className="bg-blue-500 rounded-md p-2 text-white">

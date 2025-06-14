@@ -22,14 +22,6 @@ export interface SprintData {
     logs?: Log[];
     creator_name?: string;
 }
-
-export interface SprintCreateRequest {
-    name : string;
-    description : string;
-    start_date : string;
-    end_date : string;
-}
-
 export interface SprintCreateResponse {
     data : SprintData;
     errors : string | null;

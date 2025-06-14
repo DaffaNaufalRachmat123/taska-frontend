@@ -2,7 +2,7 @@ import { create, StateCreator } from "zustand";
 import { ViewState } from "../../components/utilities/ViewState";
 import { AxiosError } from "axios";
 import axiosInstance from "../../configApi";
-import { TaskListResponse } from "../../interfaces/task-interface";
+import { TaskFormData, TaskListResponse, TaskResponse } from "../../interfaces/task-interface";
 import { objectToParams } from "../../helpers/generateUrlParams";
 
 export interface TaskState {
@@ -11,6 +11,11 @@ export interface TaskState {
     resetState: () => void
     updateTask: (taskID: string, data: any) => Promise<void>;
     updateState: ViewState<{ updated_row: number }>;
+    createTask: (data: TaskFormData) => Promise<void>;
+    createTaskState: ViewState<any>;
+    taskDetail: (taskID: string) => Promise<void>;
+    taskDetailState: ViewState<TaskResponse>;
+    resetTaskDetailState: () => void;
 }
 
 const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
@@ -119,6 +124,110 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
                 }
             }, 200)
         }
+    },
+    createTask: async (data: TaskFormData) => {
+        try {
+            set({
+                createTaskState: {
+                    type: 'Loading'
+                }
+            })
+
+            const { data: responseData } = await axiosInstance.post<TaskListResponse>(`/v1/task`, data)
+            set({
+                createTaskState: {
+                    type: 'Success',
+                    data: responseData
+                }
+            })
+        } catch (error) {
+            setTimeout(() => {
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status === 400) {
+                        set({
+                            createTaskState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            createTaskState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        createTaskState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    },
+    createTaskState: { type: 'Idle' },
+    taskDetail: async (taskID: string) => {
+        try {
+            set({
+                taskDetailState: {
+                    type: 'Loading'
+                }
+            })
+
+            const { data } = await axiosInstance.get<TaskResponse>(`/v1/task/${taskID}`)
+            set({
+                taskDetailState: {
+                    type: 'Success',
+                    data: data
+                }
+            })
+        } catch (error) {
+            setTimeout(() => {
+                console.error(error)
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status == 400) {
+                        set({
+                            taskDetailState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            taskDetailState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        taskDetailState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    },
+    taskDetailState: { type: 'Idle' },
+    resetTaskDetailState: () => {
+        set({
+            taskDetailState: { type: 'Idle' }
+        })
     }
 })
 

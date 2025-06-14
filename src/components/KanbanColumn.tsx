@@ -12,9 +12,10 @@ interface KanbanColumnProps {
     tasks?: TaskData[];
     status: string;
   };
+  onClickAddTask?: () => void;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ column }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ column, onClickAddTask }) => {
   const { id: columnId, status, tasks, title } = column;
 
   const { setNodeRef: setDroppableNodeRef, isOver } = useDroppable({
@@ -47,7 +48,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ column }) => {
       </div>
       
       {status.toLowerCase() === 'todo' && (
-        <button className="mt-3 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-200 p-2 rounded-md w-full text-left">
+        <button className="mt-3 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-200 p-2 rounded-md w-full text-left" onClick={onClickAddTask}>
           <PlusIcon className="h-4 w-4 inline mr-1 align-middle" /> Create
         </button>
       )}

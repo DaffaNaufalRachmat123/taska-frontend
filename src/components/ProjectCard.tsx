@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SprintData } from '../interfaces/sprint-interface';
 import TaskItem from './TaskItem';
 import { useTaskStore } from '../stores/auth/task.store';
+import { TaskData } from '../interfaces/task-interface';
 
 interface ProjectCardProps {
   sprint: SprintData;
@@ -27,6 +28,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const taskList = useTaskStore(state => state.taskState);
   const getTask = useTaskStore(state => state.task);
+  const removeTaskFromList = useTaskStore(state => state.removeTaskItemFromList)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -144,7 +146,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <ul className="space-y-2">
             {taskList.type === 'Loading' && <li className="text-sm text-gray-500 p-1">Loading tasks...</li>}
             {taskList.type === 'Success' && taskList.data?.data && taskList.data?.data.length > 0 ? (
-              taskList.data.data.map(t => <TaskItem task={t} key={t.id} />)
+              taskList.data.data.map(t => <TaskItem task={t} key={t.id} onDeleteFromList={(task : TaskData) => {
+                removeTaskFromList(task.id)
+              }} />)
             ) : (
               taskList.type !== 'Loading' && <li className="text-sm text-gray-500 p-2 bg-white rounded-md border text-center">No tasks in this sprint.</li>
             )}

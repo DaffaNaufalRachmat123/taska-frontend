@@ -2,6 +2,7 @@
 import React, { use, useEffect } from 'react';
 import TaskItem from './TaskItem';
 import { useTaskStore } from '../stores/auth/task.store';
+import { TaskData } from '../interfaces/task-interface';
 
 
 const TaskList: React.FC<{sprint_id: string; sprint_name: string}> = ({ sprint_id, sprint_name }) => {
@@ -28,6 +29,9 @@ const TaskList: React.FC<{sprint_id: string; sprint_name: string}> = ({ sprint_i
           <TaskItem
             key={task.id}
             task={task}
+            onDeleteFromList={(task : TaskData) => {
+              
+            }}
           />
         ))}
       </div>

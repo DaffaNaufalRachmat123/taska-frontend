@@ -22,7 +22,21 @@ export interface SprintData {
     logs?: Log[];
     creator_name?: string;
 }
+export interface SprintUpdateRequest {
+    name : string;
+    description : string;
+    start_date : string;
+    end_date : string;
+}
+export interface SprintUpdateResponse {
+    data : SprintData;
+    errors : string | null;
+}
 export interface SprintCreateResponse {
     data : SprintData;
+    errors : string | null;
+}
+export interface SprintDeleteResponse {
+    data : string;
     errors : string | null;
 }

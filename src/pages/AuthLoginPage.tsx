@@ -5,10 +5,11 @@ import { useAuthStore } from '../stores/auth/auth.store';
 import Spinner from '../components/utilities/Loading';
 import '../assets/css/slideUpDown.css';
 import { LoginRequest, LoginResponse } from '../interfaces/auth-interface';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AnimatedCheck from '../components/views/AnimatedCheck';
 import Swal from 'sweetalert2';
 import withReactContent from "sweetalert2-react-content";
+import { ModalToast } from '../components/ModalToast';
 const MySwal = withReactContent(Swal)
 
 export const AuthLoginPage = () => {
@@ -16,24 +17,26 @@ export const AuthLoginPage = () => {
     const resetState = useAuthStore((state) => state.resetState)
     const response = useAuthStore((state) => state.loginState);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+    const sessionExpired = useAuthStore((state) => state.sessionExpired)
+    const resetSessionExpired = useAuthStore((state) => state.resetSessionExpired)
 
     const [mail, setMail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [loginStatus, setLoginStatus] = useState<boolean>(false)
-    const [submit , setSubmit] = useState<boolean>(false)
-    const [mailError , setMailError] = useState<boolean>()
-    const [passError , setPassError] = useState<boolean>()
+    const [submit, setSubmit] = useState<boolean>(false)
+    const [mailError, setMailError] = useState<boolean>()
+    const [passError, setPassError] = useState<boolean>()
     const navigate = useNavigate()
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         setSubmit(true)
 
-        if(mail == ''){
+        if (mail == '') {
             setMailError(true)
         }
 
-        if(password == ''){
+        if (password == '') {
             setPassError(true)
         }
 
@@ -48,10 +51,10 @@ export const AuthLoginPage = () => {
     };
 
     useEffect(() => {
-        if(isLoggedIn){
-            setTimeout(() => { navigate('/') } , 450)
+        if (isLoggedIn) {
+            setTimeout(() => { navigate('/dashboard') }, 450)
         }
-    } , [isLoggedIn])
+    }, [isLoggedIn])
 
     useEffect(() => {
         switch (response.type) {
@@ -75,6 +78,23 @@ export const AuthLoginPage = () => {
             setTimeout(() => { setLoginStatus(false) }, 1300)
         }
     }, [loginStatus])
+
+    const [modalToast, setModalToast] = useState({
+        show: false,
+        message: '',
+        type: null as 'success' | 'error' | null,
+    });
+
+    useEffect(() => {
+        if (sessionExpired) {
+            setModalToast({
+                show : true,
+                message : 'Sesi telah habis, silahkan login kembali',
+                type : 'error'
+            })
+            resetSessionExpired()
+        }
+    }, [])
 
     const buildLoginStatus = () => {
         switch (response.type) {
@@ -122,8 +142,22 @@ export const AuthLoginPage = () => {
         }
     }
 
+    useEffect(() => {
+        if (modalToast.show) {
+            const timer = setTimeout(() => {
+                setModalToast(prev => ({ ...prev, show: false }));
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [modalToast.show]);
+
     return (
         <div className="min-h-screen flex flex-col justify-between">
+            <ModalToast
+                message={modalToast.message}
+                type={modalToast.type}
+                show={modalToast.show}
+            />
             {/* Top Navbar */}
             <div>
                 <div className="bg-white border-b border-gray-200">
@@ -140,19 +174,18 @@ export const AuthLoginPage = () => {
                     </div>
                 </div>
             </div>
-
             {/* Centered Form */}
             <div className="flex-grow flex items-center justify-center p-4">
                 <div className="w-full max-w-md bg-white shadow-xl sm:rounded-lg justify-center relative overflow-hidden">
                     {buildLoginStatus()}
                     <div className="p-6 sm:p-12">
                         <div className="flex flex-col items-center">
-                             {/* Using a placeholder for the logo */}
-                             <img
-                                 className="w-40 h-40"
-                                 src={TaskaMainLogo}
-                                 alt="Logo"
-                             />
+                            {/* Using a placeholder for the logo */}
+                            <img
+                                className="w-40 h-40"
+                                src={TaskaMainLogo}
+                                alt="Logo"
+                            />
                             <h1 className="text-2xl font-semibold text-blue-600 mt-4 mb-4">
                                 Masuk
                             </h1>
@@ -192,7 +225,7 @@ export const AuthLoginPage = () => {
                                         {buildLoginButton()}
                                         <p className="mt-6 text-sm text-gray-600 text-center">
                                             Belum punya akun?{' '}
-                                            <a style={{ cursor : 'pointer' }} onClick={() => {
+                                            <a style={{ cursor: 'pointer' }} onClick={() => {
                                                 navigate('/auth/register')
                                             }} className="font-semibold text-blue-600 hover:text-blue-800">
                                                 Daftar di sini

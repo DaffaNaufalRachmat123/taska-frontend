@@ -6,9 +6,10 @@ import { useSprintStore } from '../../stores/auth/sprint.store';
 import { useTaskStore } from '../../stores/auth/task.store';
 import TaskCreationModal from '../../components/TaskCreationModal';
 import { TaskFormData } from '../../interfaces/task-interface';
-import { SprintData } from '../../interfaces/sprint-interface';
+import { SprintData, SprintUpdateRequest } from '../../interfaces/sprint-interface';
 import { ErrorContainer } from '../../components/ErrorContainer';
 import { ModalToast } from '../../components/ModalToast';
+import { useAuthStore } from '../../stores/auth/auth.store';
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -18,24 +19,46 @@ const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const SprintPage: React.FC = () => {
+    const role = useAuthStore((state) => state.role)
+
     const sprintList = useSprintStore((state) => state.sprintListState);
     const getSprintlist = useSprintStore((state) => state.sprintList);
-    
+
     const resetTaskState = useTaskStore((state) => state.resetState);
+
+    const resetSprintState = useSprintStore((state) => state.resetState)
 
     const createSprintState = useSprintStore((store) => store.createSprintState)
     const createSprint = useSprintStore((store) => store.createSprint)
 
-    const [createSprintLoading , setCreateSprintLoading] = useState<boolean>(false)
+    const updateSprintState = useSprintStore((store) => store.updateSprintState)
+    const updateSprint = useSprintStore((state) => state.updateSprint)
+
+    const deleteSprintState = useSprintStore((state) => state.deleteSprintState)
+    const deleteSprint = useSprintStore((state) => state.deleteSprint)
+    const [deleteIdSprint , setDeleteIdSprint] = useState('')
+    const [deleteNameSprint , setDeleteNameSprint] = useState('')
+
+    const [deleteSprintLoading , setDeleteSprintLoading] = useState(false)
+
+    const [createSprintLoading, setCreateSprintLoading] = useState<boolean>(false)
 
     const createTask = useTaskStore((state) => state.createTask);
     const getTask = useTaskStore((state) => state.task);
+
+    const [sprintToEdit, setSprintToEdit] = useState<SprintData | null>(null);
 
     const [modalToast, setModalToast] = useState({
         show: false,
         message: '',
         type: null as 'success' | 'error' | null,
     });
+
+    const [toastState, setToastState] = useState({
+        show: false,
+        message: '',
+        type: null as 'success' | 'error' | null
+    })
 
     useEffect(() => {
         if (!sprintList.type || sprintList.type === 'Idle') {
@@ -55,6 +78,8 @@ const SprintPage: React.FC = () => {
     const [sprintForNewTask, setSprintForNewTask] = useState<SprintData | null>(null);
 
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
+
+    const [isDeleteSprintModal , setDeleteSprintModal] = useState(false)
 
     const handleOpenAddTaskModal = (sprint: SprintData) => {
         setSprintForNewTask(sprint);
@@ -76,14 +101,25 @@ const SprintPage: React.FC = () => {
         handleCloseModal();
     };
 
+    const handleOpenEditSprintModal = (sprint: SprintData) => {
+        setSprintToEdit(sprint);
+        setCreateModalOpen(true);
+    };
+
+    const handleDeleteSprint = (sprint : SprintData) => {
+        setDeleteIdSprint(sprint.id)
+        setDeleteNameSprint(sprint.name)
+        setDeleteSprintModal(true)
+    }
+
     const buildProjectCard = () => {
         switch (sprintList.type) {
             case 'Loading':
                 return (
                     <>
-                        <SprintCardSkeleton/>
-                        <SprintCardSkeleton/>
-                        <SprintCardSkeleton/>
+                        <SprintCardSkeleton />
+                        <SprintCardSkeleton />
+                        <SprintCardSkeleton />
                     </>
                 )
             case 'Success':
@@ -93,8 +129,11 @@ const SprintPage: React.FC = () => {
                             key={sprint.id}
                             sprint={sprint}
                             isDropdownOpen={openDropdownId === sprint.id}
+                            isEditDeleteShow={role == "admin"}
                             onToggleDropdown={handleToggleDropdown}
                             onAddTask={handleOpenAddTaskModal}
+                            onEditSprint={handleOpenEditSprintModal}
+                            onDeleteSprint={handleDeleteSprint}
                         />
                     ))
                 )
@@ -111,20 +150,30 @@ const SprintPage: React.FC = () => {
         if (modalToast.show) {
             const timer = setTimeout(() => {
                 setModalToast(prev => ({ ...prev, show: false }));
-            }, 1000);
+            }, 2000);
             return () => clearTimeout(timer);
         }
     }, [modalToast.show]);
 
     useEffect(() => {
-        switch(createSprintState.type){
+        if (toastState.show) {
+            const timer = setTimeout(() => {
+                setToastState(prev => ({ ...prev, show: false }));
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastState.show]);
+
+    useEffect(() => {
+        switch (createSprintState.type) {
             case 'Loading':
                 setCreateSprintLoading(true)
                 break;
             case 'Success':
                 setCreateSprintLoading(false)
                 setCreateModalOpen(false)
-                setModalToast({ show: true, message: 'Berhasil membuat sprint', type: 'success' });
+                setToastState({ show: true, message: 'Berhasil membuat sprint', type: 'success' });
+                resetSprintState()
                 getSprintlist()
                 break
             case 'Failed':
@@ -132,16 +181,68 @@ const SprintPage: React.FC = () => {
                 setModalToast({ show: true, message: createSprintState.message ?? "Unknown Error", type: 'error' });
                 break
         }
-    } , [createSprintState])
+    }, [createSprintState])
+
+    useEffect(() => {
+        switch (updateSprintState.type) {
+            case 'Loading':
+                setCreateSprintLoading(true)
+                break
+            case 'Success':
+                setCreateSprintLoading(false)
+                setCreateModalOpen(false)
+                setSprintToEdit(null)
+                setToastState({ show: true, message: 'Berhasil memperbarui sprint', type: 'success' })
+                resetSprintState()
+                getSprintlist()
+                break
+            case 'Failed':
+                setCreateSprintLoading(false)
+                setModalToast({ show: true, message: updateSprintState.message ?? "Unknown Error", type: 'error' })
+                break
+        }
+    }, [updateSprintState])
+
+    useEffect(() => {
+        switch(deleteSprintState.type){
+            case 'Loading':
+                setDeleteSprintLoading(true)
+                break
+            case 'Success':
+                setDeleteSprintLoading(false)
+                setDeleteSprintModal(false)
+                setDeleteIdSprint('')
+                setDeleteNameSprint('')
+                setToastState({ show : true , message : 'Berhasil menghapus sprint' , type : 'success' })
+                resetSprintState()
+                getSprintlist()
+                break
+            case 'Failed':
+                setDeleteSprintLoading(false)
+                setModalToast({ show : true , message : deleteSprintState.message ?? 'Unknown Error' , type : 'error'})
+                break
+
+        }
+    } , [deleteSprintState])
 
     const handleSubmitSprint = async (data: SprintFormData) => {
-        createSprint(data.name , data.description , data.startDate , data.endDate)
+        createSprint(data.name, data.description, data.startDate, data.endDate)
     };
+
+    const handleSubmitEditSprint = async (id: string, data: SprintFormData) => {
+        const updateReq: SprintUpdateRequest = {
+            name: data.name,
+            description: data.description,
+            start_date: data.startDate,
+            end_date: data.endDate
+        }
+        updateSprint(id, updateReq)
+    }
 
     return (
         <div className="flex flex-1 overflow-hidden">
-            <YourWorkSection />
             <main className="flex-1 flex flex-col p-6 overflow-y-auto relative">
+                <ModalToast message={toastState.message} type={toastState.type} show={toastState.show} />
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-gray-800">Sprints</h1>
                     <button
@@ -167,13 +268,29 @@ const SprintPage: React.FC = () => {
             <SprintCreationModal
                 isOpen={isCreateModalOpen}
                 onClose={() => {
+                    setSprintToEdit(null)
                     setCreateModalOpen(false)
                 }}
+                initialData={sprintToEdit}
                 toastState={modalToast}
                 onToastClose={() => setModalToast({ ...modalToast, show: false })}
                 isLoading={createSprintLoading}
                 onSubmit={handleSubmitSprint}
+                onSubmitEdit={handleSubmitEditSprint}
             />
+            <DeleteConfirmationModal
+                isOpen={isDeleteSprintModal}
+                onClose={() => {
+                    setDeleteSprintModal(false)
+                }}
+                onConfirm={() => {
+                    if(deleteIdSprint != ''){
+                        deleteSprint(deleteIdSprint)
+                    }
+                }}
+                toastState={modalToast}
+                sprintName={deleteNameSprint}
+                isLoading={deleteSprintLoading}/>
         </div>
     );
 };
@@ -228,40 +345,41 @@ const SprintCreationModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (data: SprintFormData) => Promise<void>;
+    onSubmitEdit: (id: string, data: SprintFormData) => Promise<void>;
     isLoading: boolean;
-    // Props baru untuk mengontrol toast dari luar
-    toastState: {
-        show: boolean;
-        message: string;
-        type: 'success' | 'error' | null;
-    };
+    initialData: SprintData | null; // Data untuk mode edit
+    toastState: { show: boolean; message: string; type: 'success' | 'error' | null; };
     onToastClose: () => void;
-}> = ({ isOpen, onClose, onSubmit, isLoading, toastState, onToastClose }) => {
+}> = ({ isOpen, onClose, onSubmit, onSubmitEdit, isLoading, initialData, toastState, onToastClose }) => {
     const [formData, setFormData] = useState<SprintFormData>({ name: '', description: '', startDate: '', endDate: '' });
     const [errors, setErrors] = useState<SprintFormErrors>({});
 
-    // Gunakan useEffect untuk menutup toast dari luar
-    useEffect(() => {
-        if (toastState.show) {
-            const timer = setTimeout(() => {
-                onToastClose(); // Panggil fungsi dari props untuk menutup
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [toastState.show, onToastClose]);
+    const isEditMode = !!initialData;
+
+    // Helper function to format date for input[type=date] which expects YYYY-MM-DD
+    const formatDateForInput = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
     useEffect(() => {
-        if(!isOpen){
+        if (isOpen && initialData) {
             setFormData({
-                name : '',
-                description : '',
-                startDate : '',
-                endDate : ''
-            })
+                name: initialData.name,
+                description: initialData.description,
+                startDate: formatDateForInput(initialData.start_date),
+                endDate: formatDateForInput(initialData.end_date),
+            });
+        } else if (!isOpen) {
+            setFormData({ name: '', description: '', startDate: '', endDate: '' });
+            setErrors({});
         }
-    } , [isOpen])
+    }, [isOpen, initialData]);
 
-    // ... (fungsi handleChange dan validateForm tetap sama) ...
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -274,9 +392,22 @@ const SprintCreationModal: React.FC<{
         const newErrors: SprintFormErrors = {};
         if (!formData.name.trim()) newErrors.name = 'Nama sprint tidak boleh kosong.';
         if (!formData.description.trim()) newErrors.description = 'Deskripsi tidak boleh kosong.';
-        if (!formData.startDate) { newErrors.startDate = 'Tanggal mulai harus diisi.'; } else { const startDate = new Date(formData.startDate); const today = new Date(); today.setHours(0, 0, 0, 0); if (startDate < today) newErrors.startDate = 'Tanggal mulai tidak boleh lebih awal dari hari ini.'; }
-        if (!formData.endDate) newErrors.endDate = 'Tanggal selesai harus diisi.';
-        if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) newErrors.endDate = 'Tanggal selesai tidak boleh mendahului tanggal mulai.';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (!formData.startDate) {
+            newErrors.startDate = 'Tanggal mulai harus diisi.';
+        } else if (new Date(formData.startDate) < today) {
+            newErrors.startDate = 'Tanggal mulai tidak boleh lebih awal dari hari ini.';
+        }
+
+        if (!formData.endDate) {
+            newErrors.endDate = 'Tanggal selesai harus diisi.';
+        } else if (formData.startDate && new Date(formData.endDate) < new Date(formData.startDate)) {
+            newErrors.endDate = 'Tanggal selesai tidak boleh mendahului tanggal mulai.';
+        }
+
         return newErrors;
     };
 
@@ -288,11 +419,22 @@ const SprintCreationModal: React.FC<{
             setErrors(formErrors);
             return;
         }
-        const startDateSplit = formData.startDate.split("-")
-        const endDateSplit = formData.endDate.split("-")
-        formData.startDate = `${startDateSplit[2]}-${startDateSplit[1]}-${startDateSplit[0]}`
-        formData.endDate = `${endDateSplit[2]}-${endDateSplit[1]}-${endDateSplit[0]}`
-        onSubmit(formData);
+
+        // --- AWAL PERUBAHAN ---
+        // Buat objek baru untuk dikirimkan agar tidak mengubah state secara langsung
+        const submissionData = {
+            ...formData,
+            // Format ulang tanggal ke DD-MM-YYYY sesuai kebutuhan backend Anda
+            startDate: formData.startDate.split('-').reverse().join('-'),
+            endDate: formData.endDate.split('-').reverse().join('-'),
+        };
+
+        if (isEditMode) { // Gunakan isEditMode agar lebih jelas
+            onSubmitEdit(initialData!.id, submissionData);
+        } else {
+            onSubmit(submissionData);
+        }
+        // --- AKHIR PERUBAHAN ---
     };
 
     if (!isOpen) return null;
@@ -300,26 +442,19 @@ const SprintCreationModal: React.FC<{
     return (
         <div className="fixed inset-0 bg-black bg-opacity-25 z-50 flex justify-center items-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg relative overflow-hidden">
-                <ModalToast
-                    message={toastState.message}
-                    type={toastState.type}
-                    show={toastState.show}
-                />
+                <ModalToast message={toastState.message} type={toastState.type} show={toastState.show} />
                 {isLoading && (
                     <div className="absolute inset-0 bg-white/75 backdrop-blur-sm flex justify-center items-center z-10 rounded-lg">
                         <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </div>
                 )}
                 <form onSubmit={handleSubmit} noValidate>
-                    <div className="p-6 border-b border-gray-200 flex justify-between items-center"><h2 className="text-xl font-semibold text-gray-800">Create Sprint</h2><button type="button" onClick={() => {
-                        setFormData({
-                            name : '',
-                            description : '',
-                            startDate : '',
-                            endDate : ''
-                        })
-                        onClose()
-                    }} disabled={isLoading} className="text-gray-400 hover:text-gray-600 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
+                    <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h2 className="text-xl font-semibold text-gray-800">{isEditMode ? 'Edit Sprint' : 'Create Sprint'}</h2>
+                        <button type="button" onClick={onClose} disabled={isLoading} className="text-gray-400 hover:text-gray-600 disabled:opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
                     <div className="p-6 space-y-4">
                         <div><label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nama Sprint</label><input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.name ? 'border-red-500' : 'border-gray-300'}`} placeholder="e.g., Q3 Marketing Campaign" />{errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}</div>
                         <div><label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea name="description" id="description" value={formData.description} onChange={handleChange} rows={4} className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'}`} placeholder="Add a more detailed description..."></textarea>{errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}</div>
@@ -328,16 +463,108 @@ const SprintCreationModal: React.FC<{
                             <div><label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">End Date</label><input type="date" name="endDate" id="endDate" value={formData.endDate} onChange={handleChange} className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.endDate ? 'border-red-500' : 'border-gray-300'}`} />{errors.endDate && <p className="text-red-500 text-xs mt-1">{errors.endDate}</p>}</div>
                         </div>
                     </div>
-                    <div className="p-6 bg-gray-50 flex justify-end rounded-b-lg"><button type="button" onClick={() => {
-                        setFormData({
-                            name : '',
-                            description : '',
-                            startDate : '',
-                            endDate : ''
-                        })
-                        onClose()
-                    }} disabled={isLoading} className="bg-white text-gray-700 px-4 py-2 rounded-md border border-gray-300 mr-2 hover:bg-gray-50 disabled:opacity-50">Cancel</button><button type="submit" disabled={isLoading} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-blue-400 disabled:cursor-not-allowed">Create Sprint</button></div>
+                    <div className="p-6 bg-gray-50 flex justify-end rounded-b-lg">
+                        <button type="button" onClick={onClose} disabled={isLoading} className="bg-white text-gray-700 px-4 py-2 rounded-md border border-gray-300 mr-2 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+                        <button type="submit" disabled={isLoading} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                            {isEditMode ? 'Save Changes' : 'Create Sprint'}
+                        </button>
+                    </div>
                 </form>
+            </div>
+        </div>
+    );
+};
+
+interface DeleteConfirmationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    sprintName: string;
+    isLoading: boolean;
+    toastState: { show: boolean; message: string; type: 'success' | 'error' | null; };
+}
+
+const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    sprintName,
+    isLoading,
+    toastState
+}) => {
+    if (!isOpen) return null;
+
+    // Mencegah penutupan modal saat tombol di dalam modal diklik
+    const handleModalContentClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
+    return (
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center p-4"
+            onClick={onClose} // Menutup modal saat area luar diklik
+        >
+            <div 
+                className="bg-white rounded-lg shadow-xl w-full max-w-md relative overflow-hidden"
+                onClick={handleModalContentClick}
+            >
+                <ModalToast message={toastState.message} type={toastState.type} show={toastState.show} />
+                {/* Indikator Loading */}
+                {isLoading && (
+                    <div className="absolute inset-0 bg-white/75 backdrop-blur-sm flex justify-center items-center z-10 rounded-lg">
+                        <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </div>
+                )}
+
+                {/* Header Modal */}
+                <div className="p-5 border-b border-gray-200 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-800">Konfirmasi Penghapusan</h2>
+                    <button 
+                        type="button" 
+                        onClick={onClose} 
+                        disabled={isLoading} 
+                        className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                        aria-label="Tutup modal"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                {/* Body Modal */}
+                <div className="p-6 text-center">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                         <svg className="h-6 w-6 text-red-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <p className="text-base text-gray-600">
+                        Kamu yakin ingin menghapus sprint <br />
+                        <strong className="font-semibold text-gray-800">"{sprintName}"</strong> ini?
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                        Aksi ini tidak dapat dibatalkan.
+                    </p>
+                </div>
+
+                {/* Footer dengan Tombol Aksi */}
+                <div className="p-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                    <button 
+                        type="button" 
+                        onClick={onClose} 
+                        disabled={isLoading} 
+                        className="bg-white text-gray-700 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={onConfirm}
+                        disabled={isLoading} 
+                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-red-400 disabled:cursor-not-allowed"
+                    >
+                        Hapus
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -62,10 +62,19 @@ const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit
     }, [isOpen, taskToEdit, sprintID]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        const processedValue = (name === 'priority' || name === 'story_point') ? Number(value) : value;
-        setFormData(prev => ({ ...prev, [name]: processedValue }));
-    };
+    const { name, value } = e.target;
+
+    let processedValue: string | number = value;
+
+    // Khusus untuk field angka seperti story_point dan priority
+    if (name === 'priority' || name === 'story_point') {
+        // Jika input dikosongkan, simpan sebagai string kosong.
+        // Jika tidak, baru ubah menjadi angka.
+        processedValue = value === '' ? '' : Number(value);
+    }
+
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
+};
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -242,9 +251,9 @@ const TaskCreationModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSubmit
                                 name="story_point"
                                 value={formData.story_point}
                                 onChange={handleChange}
-                                min="0"
-                                max="5"
                                 placeholder="0"
+                                min="0"
+                                max="8"
                                 className="w-full bg-transparent p-1.5 pl-2 border-none focus:ring-0 text-gray-800 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                         </div>

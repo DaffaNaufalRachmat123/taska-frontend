@@ -2,7 +2,7 @@ import { create, StateCreator } from "zustand";
 import { ViewState } from "../../components/utilities/ViewState";
 import { AxiosError } from "axios";
 import axiosInstance from "../../configApi";
-import { TaskFormData, TaskListResponse, TaskResponse } from "../../interfaces/task-interface";
+import { TaskDeleteResponse, TaskFormData, TaskListResponse, TaskResponse } from "../../interfaces/task-interface";
 import { objectToParams } from "../../helpers/generateUrlParams";
 
 export interface TaskState {
@@ -16,6 +16,11 @@ export interface TaskState {
     taskDetail: (taskID: string) => Promise<void>;
     taskDetailState: ViewState<TaskResponse>;
     resetTaskDetailState: () => void;
+
+    deleteTaskState: ViewState<TaskDeleteResponse>;
+    deleteTask: (id: string) => Promise<void>;
+
+    removeTaskItemFromList: (id: string) => void;
 }
 
 const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
@@ -70,9 +75,9 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
             }, 200)
         }
     },
-    resetState : () => {
+    resetState: () => {
         set({
-            taskState : { type : 'Idle' }
+            taskState: { type: 'Idle' }
         })
     },
     updateState: { type: 'Idle' },
@@ -226,8 +231,79 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     taskDetailState: { type: 'Idle' },
     resetTaskDetailState: () => {
         set({
-            taskDetailState: { type: 'Idle' }
+            taskDetailState: { type: 'Idle' },
+            updateState: { type: 'Idle' },
+            deleteTaskState: { type: 'Idle' }
         })
+    },
+    deleteTaskState: { type: 'Idle' },
+    deleteTask: async (id: string) => {
+        try {
+            set({
+                deleteTaskState: {
+                    type: 'Loading'
+                }
+            })
+            const { data } = await axiosInstance.delete<TaskDeleteResponse>(`/v1/task/delete/${id}`)
+            set({
+                deleteTaskState: {
+                    type: 'Success',
+                    data: data
+                }
+            })
+        } catch (error) {
+            setTimeout(() => {
+                console.error(error)
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status == 400) {
+                        set({
+                            deleteTaskState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            deleteTaskState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        deleteTaskState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    },
+    removeTaskItemFromList: (id: string) => {
+        const currentState = get().taskState;
+        if (currentState.type === 'Success' && currentState.data) {
+
+            // Buat array baru dengan memfilter keluar data yang ID-nya cocok
+            const updatedDataArray = currentState.data.data.filter(task => task.id !== id);
+
+            // Perbarui state `taskState` dengan array yang sudah tidak berisi data terhapus
+            set({
+                taskState: {
+                    ...currentState,
+                    data: {
+                        ...currentState.data,
+                        data: updatedDataArray
+                    }
+                }
+            });
+        }
+
     }
 })
 

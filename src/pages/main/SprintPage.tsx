@@ -273,7 +273,6 @@ const SprintPage: React.FC = () => {
                 }}
                 initialData={sprintToEdit}
                 toastState={modalToast}
-                onToastClose={() => setModalToast({ ...modalToast, show: false })}
                 isLoading={createSprintLoading}
                 onSubmit={handleSubmitSprint}
                 onSubmitEdit={handleSubmitEditSprint}
@@ -349,8 +348,7 @@ const SprintCreationModal: React.FC<{
     isLoading: boolean;
     initialData: SprintData | null; // Data untuk mode edit
     toastState: { show: boolean; message: string; type: 'success' | 'error' | null; };
-    onToastClose: () => void;
-}> = ({ isOpen, onClose, onSubmit, onSubmitEdit, isLoading, initialData, toastState, onToastClose }) => {
+}> = ({ isOpen, onClose, onSubmit, onSubmitEdit, isLoading, initialData, toastState }) => {
     const [formData, setFormData] = useState<SprintFormData>({ name: '', description: '', startDate: '', endDate: '' });
     const [errors, setErrors] = useState<SprintFormErrors>({});
 
@@ -420,11 +418,8 @@ const SprintCreationModal: React.FC<{
             return;
         }
 
-        // --- AWAL PERUBAHAN ---
-        // Buat objek baru untuk dikirimkan agar tidak mengubah state secara langsung
         const submissionData = {
             ...formData,
-            // Format ulang tanggal ke DD-MM-YYYY sesuai kebutuhan backend Anda
             startDate: formData.startDate.split('-').reverse().join('-'),
             endDate: formData.endDate.split('-').reverse().join('-'),
         };

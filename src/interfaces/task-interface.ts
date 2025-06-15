@@ -35,3 +35,8 @@ export interface TaskFormData {
     story_point?: number;
     assignee_id?: string;
 }
+
+export interface TaskDeleteResponse {
+    data : string;
+    errors : string | null;
+}

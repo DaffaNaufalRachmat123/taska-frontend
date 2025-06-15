@@ -3,7 +3,7 @@ import { ViewState } from "../../components/utilities/ViewState";
 import { AxiosError } from "axios";
 import { devtools, persist } from 'zustand/middleware'
 import axiosInstance from "../../configApi";
-import { SprintCreateResponse, SprintListResponse, SprintResponse } from "../../interfaces/sprint-interface";
+import { SprintCreateResponse, SprintDeleteResponse, SprintListResponse, SprintResponse, SprintUpdateRequest, SprintUpdateResponse } from "../../interfaces/sprint-interface";
 
 export interface SprintState {
     currSprintState: ViewState<SprintResponse>;
@@ -19,6 +19,12 @@ export interface SprintState {
 
     createSprintState : ViewState<SprintCreateResponse>;
     createSprint : (name : string , desc : string , start_date : string , end_date : string) => Promise<void>;
+
+    updateSprintState : ViewState<SprintUpdateResponse>;
+    updateSprint : (id : string , request : SprintUpdateRequest) => Promise<void>;
+
+    deleteSprintState : ViewState<SprintDeleteResponse>;
+    deleteSprint : (id : string) => Promise<void>;
 }
 
 const storeSprintApi: StateCreator<SprintState> = (set) => ({
@@ -74,7 +80,10 @@ const storeSprintApi: StateCreator<SprintState> = (set) => ({
     },
     resetState : () => {
         set({
-            currSprintState : { type : 'Idle' }
+            currSprintState : { type : 'Idle' },
+            createSprintState : { type : 'Idle' },
+            updateSprintState : { type : 'Idle' },
+            deleteSprintState : { type : 'Idle' }
         })
     },
     sprintList: async (filter?: Record<string, any>) => {
@@ -240,6 +249,104 @@ const storeSprintApi: StateCreator<SprintState> = (set) => ({
                 } else {
                     set({
                         sprintConfigState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    },
+    updateSprintState : { type : 'Idle' },
+    updateSprint : async(id : string , request : SprintUpdateRequest) => {
+        try {
+            set({
+                updateSprintState : {
+                    type : 'Loading'
+                }
+            })
+            const { data } = await axiosInstance.put<SprintUpdateResponse>(`/v1/sprint/update/${id}` , request)
+            set({
+                updateSprintState : {
+                    type : 'Success',
+                    data : data
+                }
+            })
+        } catch (error){
+            setTimeout(() => {
+                console.error(error)
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status === 400) {
+                        set({
+                            updateSprintState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            updateSprintState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        updateSprintState: {
+                            type: 'Failed',
+                            message: 'Unknown Error',
+                            code: 404
+                        }
+                    })
+                }
+            }, 200)
+        }
+    },
+    deleteSprintState : { type : 'Idle' },
+    deleteSprint : async(id : string) => {
+        try {
+            set({
+                deleteSprintState : {
+                    type : 'Loading'
+                }
+            })
+            const { data } = await axiosInstance.delete(`/v1/sprint/delete/${id}`)
+            set({
+                deleteSprintState : {
+                    type : 'Success',
+                    data : data
+                }
+            })
+        } catch (error){
+            setTimeout(() => {
+                console.error(error)
+                if (error instanceof AxiosError) {
+                    const status = error.response?.status
+                    if (status === 400) {
+                        set({
+                            deleteSprintState: {
+                                type: 'Failed',
+                                message: 'Bad Request from user',
+                                code: 400
+                            }
+                        })
+                    } else {
+                        set({
+                            deleteSprintState: {
+                                type: 'Failed',
+                                message: error.response ? error.response.data.server_message : 'Unknown Error',
+                                code: error.response ? error.response.status : 404
+                            }
+                        })
+                    }
+                } else {
+                    set({
+                        deleteSprintState: {
                             type: 'Failed',
                             message: 'Unknown Error',
                             code: 404

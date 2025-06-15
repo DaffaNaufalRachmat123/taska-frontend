@@ -9,20 +9,34 @@ export interface AuthState {
     loginState: ViewState<LoginResponse>;
     registerState : ViewState<RegisterResponse>;
     isLoggedIn: boolean;
+    sessionExpired : boolean;
     role : string;
     token: string;
     login: (request: LoginRequest) => Promise<void>;
     register : (request : RegisterRequest) => Promise<void>;
     logout: () => void;
-    resetState: () => void
+    resetState: () => void;
+    setSessionExpired: () => void;
+    resetSessionExpired: () => void;
 }
 
 const storeAuthApi: StateCreator<AuthState> = (set) => ({
     loginState: { type: 'Idle' },
     registerState : { type : 'Idle' },
     isLoggedIn: false,
+    sessionExpired : false,
     role : '',
     token: '',
+    setSessionExpired: () => {
+        set({
+            sessionExpired : true
+        })
+    },
+    resetSessionExpired: () => {
+        set({
+            sessionExpired : false
+        })
+    },
     login: async (request: LoginRequest) => {
         try {
             set({

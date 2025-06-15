@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import ProjectCard from "../components/ProjectCard";
-import TaskList from "../components/TaskList";
-import YourWorkSection from "../components/YourWorkSection";
-import { useSprintStore } from "../stores/auth/sprint.store";
-import { SprintData } from "../interfaces/sprint-interface";
+import ProjectCard from "../../components/ProjectCard";
+import TaskList from "../../components/TaskList";
+import YourWorkSection from "../../components/YourWorkSection";
+import { useSprintStore } from "../../stores/auth/sprint.store";
+import { SprintData } from "../../interfaces/sprint-interface";
+import { useAuthStore } from "../../stores/auth/auth.store";
 
 export const DashboardPage: React.FC = () => {
   const getSprint = useSprintStore((state) => state.currentSprint);
+  const role = useAuthStore((state) => state.role)
   const response = useSprintStore((state) => state.currSprintState);
 
   useEffect(() => {
@@ -31,8 +33,15 @@ export const DashboardPage: React.FC = () => {
             <ProjectCard
               sprint={response.data?.data as SprintData}
               isDropdownOpen={false}
+              isEditDeleteShow={role == "admin"}
               onToggleDropdown={() => {}}
               onAddTask={() => {}}
+              onEditSprint={(sprint: SprintData) => {
+
+              }}
+              onDeleteSprint={(sprint : SprintData) => {
+
+              }}
               key={(response.data?.data.id as string)}
             />
           </>
@@ -48,7 +57,6 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <YourWorkSection />
       <main className="flex-1 flex flex-col p-6 bg-gray-50 overflow-y-auto">
         <div className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-1 gap-6">

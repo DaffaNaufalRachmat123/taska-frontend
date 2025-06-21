@@ -3,6 +3,11 @@ export interface UserListResponse {
     errors : string
 }
 
+export interface UserResponse {
+    data : UserData;
+    errors : string
+}
+
 export interface UserData {
     id: string;
     name: string;

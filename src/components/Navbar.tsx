@@ -5,18 +5,29 @@ import {
   MagnifyingGlassIcon,
   BellIcon,
   QuestionMarkCircleIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../stores/auth/auth.store';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '../stores/auth/user.store';
+import { useOrganizationStore } from '../stores/auth/organization.store';
 
 const Navbar: React.FC = () => {
   const logout = useAuthStore((store) => store.logout)
   const navigate = useNavigate()
-  const user = {
-    name: 'Daffa',
-    email: 'daffarachmatnaufal@gmail.com',
-    avatarChar: 'D',
-  };
+
+  const getLoggedInUser = useUserStore((store) => store.me);
+  const me = useUserStore((store) => store.meState);
+
+  const getOrganization = useOrganizationStore((store) => store.org);
+  const org = useOrganizationStore((store) => store.orgState);
+
+  React.useEffect(() => {
+    if (me.type === 'Idle') {
+      getLoggedInUser();
+      getOrganization();
+    }
+  }, [getLoggedInUser, me]);
 
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-50">
@@ -25,39 +36,21 @@ const Navbar: React.FC = () => {
         <div className="flex items-center space-x-4">
           <div className="text-blue-600 font-bold text-xl">Taska</div>
           {/* ... (menu navigasi lainnya tetap sama) ... */}
-          {/* <a href="#" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">Projects <ChevronDownIcon className="h-5 w-5 ml-1" /></a>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-            Create
-          </button> */}
+          <div className="text-gray-600 font-medium">
+          {org.type === 'Success' ? org?.data?.data.name : 'Loading...'}
+        </div>
         </div>
       </div>
 
       <div className="flex items-center space-x-4">
-        {/* Search, Help, Notifications */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search"
-            className="bg-gray-100 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 text-gray-900 placeholder-gray-500 sm:text-sm"
-          />
-        </div>
-        <button className="text-gray-500 hover:text-gray-700">
-          <BellIcon className="h-6 w-6" />
-        </button>
-        <button className="text-gray-500 hover:text-gray-700">
-          <QuestionMarkCircleIcon className="h-6 w-6" />
-        </button>
-
         {/* Profile dropdown */}
-        <Menu as="div" className="relative ml-3">
+        { me.type === 'Success' && (
+          <Menu as="div" className="relative ml-3">
           <div>
             <Menu.Button className="flex text-sm bg-yellow-500 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               <span className="sr-only">Open user menu</span>
               <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                {user.avatarChar}
+                {me?.data?.data.name.charAt(0).toUpperCase()}
               </div>
             </Menu.Button>
           </div>
@@ -76,11 +69,11 @@ const Navbar: React.FC = () => {
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Account</p>
                 <div className="mt-3 flex items-center space-x-3">
                   <div className="flex-shrink-0 h-10 w-10 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {user.avatarChar}
+                    {me?.data?.data.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <p className="text-sm font-medium text-gray-900">{me?.data?.data.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{me?.data?.data.email}</p>
                   </div>
                 </div>
               </div>
@@ -107,6 +100,7 @@ const Navbar: React.FC = () => {
             </Menu.Items>
           </Transition>
         </Menu>
+        )}
       </div>
     </nav>
   );

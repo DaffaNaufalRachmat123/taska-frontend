@@ -27,7 +27,7 @@ const ProjectBoardPage: React.FC = () => {
     <div className="flex flex-col h-screen antialiased text-gray-800">
       <Navbar/>
       <div className="flex flex-1 overflow-hidden">
-        <ProjectSpecificSidebar sprintName={"Software project"} />
+        <ProjectSpecificSidebar />
         <main className="flex-1 overflow-auto bg-white p-6">
           <BoardContent projectTitle={projectId ? projectId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + " Board" : "Project Board"}  />
         </main>

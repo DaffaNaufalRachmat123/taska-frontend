@@ -16,7 +16,7 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
   // Destructure all needed properties from the task object
-  const { id, name, status, type, assignee_name, reporter_name } = task;
+  const { id, name, status, type, assignee_name, reporter_name, code } = task;
 
   // Helper to determine the main status icon and color
   const getStatusInfo = () => {
@@ -151,7 +151,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
         <div className="flex flex-col">
           <p className="text-sm font-medium text-gray-800">{name}</p>
           <p className="text-xs text-gray-500">
-            {reporter_name ? `${reporter_name} • ` : ''}{id}
+            {code}
           </p>
         </div>
       </div>

@@ -77,7 +77,8 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     },
     resetState: () => {
         set({
-            taskState: { type: 'Idle' }
+            createTaskState : { type : 'Idle' },
+            deleteTaskState : { type : 'Idle' }
         })
     },
     updateState: { type: 'Idle' },
@@ -287,18 +288,20 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     },
     removeTaskItemFromList: (id: string) => {
         const currentState = get().taskState;
+        console.log(`ID : ${id}`)
         if (currentState.type === 'Success' && currentState.data) {
 
             // Buat array baru dengan memfilter keluar data yang ID-nya cocok
             const updatedDataArray = currentState.data.data.filter(task => task.id !== id);
+            console.log(`updated array : ${JSON.stringify(updatedDataArray)}`)
 
             // Perbarui state `taskState` dengan array yang sudah tidak berisi data terhapus
             set({
                 taskState: {
                     ...currentState,
                     data: {
-                        ...currentState.data,
-                        data: updatedDataArray
+                        data : updatedDataArray,
+                        errors : ''
                     }
                 }
             });

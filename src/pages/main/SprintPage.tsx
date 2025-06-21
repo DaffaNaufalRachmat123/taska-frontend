@@ -245,15 +245,17 @@ const SprintPage: React.FC = () => {
                 <ModalToast message={toastState.message} type={toastState.type} show={toastState.show} />
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-gray-800">Sprints</h1>
-                    <button
-                        onClick={() => {
-                            setCreateModalOpen(true)
-                        }}
-                        className="flex items-center justify-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5"
-                    >
-                        <PlusIcon className="h-5 w-5 mr-2" />
-                        Create Sprint
-                    </button>
+                    {role === "admin" && (
+                        <button
+                            onClick={() => {
+                                setCreateModalOpen(true)
+                            }}
+                            className="flex items-center justify-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5"
+                        >
+                            <PlusIcon className="h-5 w-5 mr-2" />
+                            Create Sprint
+                        </button>
+                    )}
                 </div>
                 <div className="flex-1">
                     {buildProjectCard()}

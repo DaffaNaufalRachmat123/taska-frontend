@@ -43,15 +43,6 @@ const ProjectSpecificSidebar: React.FC<SprintSpecificSidebarProps> = ({ sprintNa
             <p className="text-xs text-gray-500">Software project</p>
           </div>
         </div>
-
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">PLANNING</h3>
-        <nav className="space-y-1">
-          <SidebarLink icon={DocumentTextIcon} text="Summary" />
-          <SidebarLink icon={ClockIcon} text="Timeline" />
-          <SidebarLink icon={ViewColumnsIcon} text="Board" isActive={true} /> {/* Contoh item aktif */}
-          <SidebarLink icon={ListBulletIcon} text="List" />
-          <SidebarLink icon={BriefcaseIcon} text="All work" />
-        </nav>
       </div>
 
     </aside>

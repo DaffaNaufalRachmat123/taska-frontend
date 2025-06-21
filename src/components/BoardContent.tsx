@@ -263,12 +263,18 @@ const BoardContent: React.FC<BoardContentProps> = () => {
   return (
     <main className="flex-1 flex flex-col p-6 bg-white overflow-hidden">
       {/* Header Papan */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <p className="text-xs text-gray-500">Sprint / Chatbot for Customer Support</p>
-          <h1 className="text-2xl font-semibold text-gray-800">Sprint 1</h1>
+      {sprintConfigState.type === 'Success' && sprintConfigState?.data?.data ? (
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <p className="text-xs text-gray-500">Sprint / {sprintConfigState.data.data.find(sp => sp.id === sprintId)?.name}</p>
+            <h1 className="text-2xl font-semibold text-gray-800">{sprintConfigState.data.data.find(sp => sp.id === sprintId)?.name}</h1>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <p className="text-gray-600">Loading sprint configuration...</p>
+        </div>
+      )}
 
       {tasksState.type === 'Loading' && (
         <div className="flex items-center justify-center h-full">

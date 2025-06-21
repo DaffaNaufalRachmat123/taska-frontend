@@ -5,6 +5,7 @@ import {
   ClipboardDocumentListIcon, FlagIcon, BriefcaseIcon, PlusCircleIcon, CodeBracketIcon,
   BookOpenIcon, AcademicCapIcon, LinkIcon, Cog8ToothIcon
 } from '@heroicons/react/24/outline'; // Menggunakan outline icons
+import { ArrowLeftEndOnRectangleIcon } from '@heroicons/react/20/solid';
 
 interface SidebarLinkProps {
   icon: React.ElementType;
@@ -25,24 +26,34 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ icon: Icon, text, href = "#",
   </a>
 );
 
-interface SprintSpecificSidebarProps {
-  sprintName?: string; // Nama proyek dari URL atau props
-}
-
-const ProjectSpecificSidebar: React.FC<SprintSpecificSidebarProps> = ({ sprintName = "Chatbot for Customer..." }) => {
+const ProjectSpecificSidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-gray-50 border-r border-gray-200 p-4 space-y-4 overflow-y-auto flex flex-col">
       <div>
+        { /* Back To Dashboard Button */}
+        <a
+          href="/dashboard"
+          className="flex items-center space-x-2 mb-4 px-3 py-2.5 text-sm rounded-md hover:bg-blue-50 hover:text-blue-600 group text-gray-700"
+          title="Back to Dashboard"
+        >
+          <ArrowLeftEndOnRectangleIcon className="h-5 w-5 text-gray-400 group-hover:text-blue-500" />
+          <span>Back to Dashboard</span>
+        </a>
+
+        {/* Project Overview Section */}
         <div className="flex items-center space-x-2 mb-4">
           <div className="bg-blue-100 p-2 rounded">
-             {/* Ganti dengan ikon proyek yang sesuai jika ada, atau inisial */}
             <HomeIcon className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-gray-800 truncate">{sprintName}</h2>
-            <p className="text-xs text-gray-500">Software project</p>
+            <h2 className="text-sm font-semibold text-gray-800 truncate">Sprint Board</h2>
           </div>
         </div>
+
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">SPRINT</h3>
+        <nav className="space-y-1">
+          <SidebarLink icon={BriefcaseIcon} text="All work" isActive={true} />
+        </nav>
       </div>
 
     </aside>

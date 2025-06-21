@@ -19,6 +19,7 @@ export interface TaskData {
     priority: number;
     story_point: number;
     reporter_id: string;
+    code: string;
     assignee_id?: string | null;
     type: string;
     reporter_name: string;

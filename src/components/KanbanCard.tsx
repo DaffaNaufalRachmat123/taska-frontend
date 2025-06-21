@@ -24,7 +24,7 @@ const priorityMap = {
 
 const KanbanCard: React.FC<{ task: TaskData }> = ({ task }) => {
   // Destructure all needed properties from the task object
-  const { id, name, status, type, priority, assignee_name } = task;
+  const { id, name, status, type, priority, assignee_name, code } = task;
 
   const {
     attributes,
@@ -77,7 +77,7 @@ const KanbanCard: React.FC<{ task: TaskData }> = ({ task }) => {
             <ClipboardDocumentCheckIcon className="h-4 w-4 text-gray-400" title="Task" />
           )}
           <PriorityIcon className={`h-4 w-4 ${priorityColor}`} title={`Priority: ${priorityLabel}`} />
-          <span>{id.substring(0, 6)}...</span>
+          <span>{code}</span>
         </div>
 
         {/* Right side: Status and Assignee */}

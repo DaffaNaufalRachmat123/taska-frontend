@@ -1,10 +1,12 @@
 // src/components/YourWorkSection.tsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useUserStore } from '../stores/auth/user.store';
 
 const YourWorkSection: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const data = useUserStore((store) => store.meState)
 
   // This function now correctly highlights the active link, including nested routes.
   const getLinkClassName = (path: string): string => {
@@ -26,7 +28,7 @@ const YourWorkSection: React.FC = () => {
       {/* Navigation links updated to use React Router's Link component */}
       <nav className="mt-6 px-2 space-y-1">
         <Link
-          to="/dashboard"
+          to="/"
           className={getLinkClassName("/dashboard")}
         >
           Dashboard
@@ -37,15 +39,17 @@ const YourWorkSection: React.FC = () => {
         >
           Sprint List
         </Link>
-        <Link
-          to="/task/me"
-          className={getLinkClassName('/task/me')}
-        >
-          Assigned to me
-          <span className="ml-auto inline-block py-0.5 px-2.5 text-xs font-medium rounded-full bg-gray-200 text-gray-700">
-            0
-          </span>
-        </Link>
+        {data.type === 'Success' && (
+          <Link
+            to={`/task/${data.data?.data.id}`}
+            className={getLinkClassName(`/task/${data.data?.data.id}`)}
+          >
+            Assigned to me
+            <span className="ml-auto inline-block py-0.5 px-2.5 text-xs font-medium rounded-full bg-gray-200 text-gray-700">
+              0
+            </span>
+          </Link>
+        )}
       </nav>
     </div>
   );

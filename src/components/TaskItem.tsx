@@ -8,6 +8,7 @@ import { SprintData } from '../interfaces/sprint-interface';
 import { useTaskStore } from '../stores/auth/task.store';
 import { TaskDetailModal } from './TaskDetailModal';
 import { ModalToast } from './ModalToast';
+import { useAuthStore } from '../stores/auth/auth.store';
 
 interface TaskItemProps {
   task: TaskData;
@@ -15,6 +16,7 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
+  const role = useAuthStore((state) => state.role)
   // Destructure all needed properties from the task object
   const { id, name, status, type, assignee_name, reporter_name, code } = task;
 
@@ -41,6 +43,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
   const deleteTaskState = useTaskStore((state) => state.deleteTaskState)
   const deleteTask = useTaskStore((state) => state.deleteTask)
   const getTask = useTaskStore((state) => state.task);
+  const resetState = useTaskStore((state) => state.resetState)
 
   const handleOpenAddTaskModal = () => {
     setIsModalOpen(true);
@@ -108,6 +111,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
     switch (deleteTaskState.type) {
       case 'Loading':
         setDeleteLoading(true)
+        console.log(`[+] LOADING DELETE TASK STATE [+]`)
         break
       case 'Success':
         setDeleteLoading(false)
@@ -115,10 +119,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
         setToastState({ show: true, message: 'Berhasil menghapus task', type: 'success' })
         // Remove task 
         onDeleteFromList(task)
+        resetState()
+        //resetState()
+        console.log(`[+] LOADING SUCCESS TASK STATE [+]`)
         break
       case 'Failed':
         setDeleteLoading(false)
         setDeleteModalToast({ show: true, message: deleteTaskState.message ?? 'Unknown Error', type: 'error' })
+        console.log(`[+] LOADING FAILED TASK STATE [+]`)
         break
     }
   }, [deleteTaskState])
@@ -175,12 +183,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
         )}
 
         {/* Action Button - Selalu Terlihat */}
-        <button
-          onClick={handleEditClick}
-          className="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
-        >
-          <PencilSquareIcon className="h-5 w-5" />
-        </button>
+        {role === "admin" && (
+          <button
+            onClick={handleEditClick}
+            className="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+          >
+            <PencilSquareIcon className="h-5 w-5" />
+          </button>
+        )}
 
         {/* Tombol Detail - Selalu Terlihat */}
         <button
@@ -189,12 +199,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
         >
           <DocumentMagnifyingGlassIcon className="h-5 w-5" />
         </button>
-        <button
-          onClick={handleDeleteModalOpen}
-          className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
-        >
-          <TrashIcon className="h-5 w-5" />
-        </button>
+        {role === "admin" && (
+          <button
+            onClick={handleDeleteModalOpen}
+            className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+          >
+            <TrashIcon className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       { /** Modal Edit Task */}

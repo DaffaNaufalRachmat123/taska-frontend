@@ -51,7 +51,8 @@ const storeAuthApi: StateCreator<AuthState> = (set) => ({
             set({
                 loginState: {
                     type: 'Success',
-                    data: data
+                    data: data,
+                    message : 'Berhasil masuk'
                 },
                 isLoggedIn: true,
                 role : data.data.role,

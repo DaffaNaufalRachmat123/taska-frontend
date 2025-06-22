@@ -65,7 +65,8 @@ const storeUserApi: StateCreator<UserState> = (set, get) => ({
     },
     resetState : () => {
         set({
-            userState : { type : 'Idle' }
+            userState : { type : 'Idle' },
+            meState : { type : 'Idle' }
         })
     },
     meState: { type: 'Idle' },
@@ -78,6 +79,7 @@ const storeUserApi: StateCreator<UserState> = (set, get) => ({
             })
 
             const { data } = await axiosInstance.get<UserResponse>(`/v1/users/me`)
+            console.log(`CREDENTIAL DATA : ${JSON.stringify(data , null , 2)}`)
             set({
                 meState: {
                     type: 'Success',

@@ -7,7 +7,7 @@ import { objectToParams } from "../../helpers/generateUrlParams";
 
 export interface TaskState {
     taskState: ViewState<TaskListResponse>;
-    task: (sprintID: string, filter?: Record<string, any>) => Promise<void>;
+    task: (sprintID: string, filter?: Record<string, any>, delay?: number) => Promise<void>;
     resetState: () => void
     updateTask: (taskID: string, data: any) => Promise<void>;
     updateState: ViewState<{ updated_row: number }>;
@@ -19,13 +19,11 @@ export interface TaskState {
 
     deleteTaskState: ViewState<TaskDeleteResponse>;
     deleteTask: (id: string) => Promise<void>;
-
-    removeTaskItemFromList: (id: string) => void;
 }
 
 const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     taskState: { type: 'Idle' },
-    task: async (sprintID: string, filter?: Record<string, string>) => {
+    task: async (sprintID: string, filter?: Record<string, string>, delay?: number) => {
         try {
             set({
                 taskState: {
@@ -35,12 +33,14 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
 
             const paramsString = filter && objectToParams(filter)
             const { data } = await axiosInstance.get<TaskListResponse>(`/v1/task/list/${sprintID}?${paramsString || ''}`)
-            set({
-                taskState: {
-                    type: 'Success',
-                    data: data
-                },
-            })
+            setTimeout(() => {
+                set({
+                    taskState: {
+                        type: 'Success',
+                        data: data
+                    },
+                })
+            }, delay ?? 0);
         } catch (error) {
             setTimeout(() => {
                 console.error(error)
@@ -77,7 +77,8 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
     },
     resetState: () => {
         set({
-            taskState: { type: 'Idle' }
+            createTaskState : { type : 'Idle' },
+            deleteTaskState : { type : 'Idle' }
         })
     },
     updateState: { type: 'Idle' },
@@ -284,26 +285,6 @@ const storeTaskApi: StateCreator<TaskState> = (set, get) => ({
                 }
             }, 200)
         }
-    },
-    removeTaskItemFromList: (id: string) => {
-        const currentState = get().taskState;
-        if (currentState.type === 'Success' && currentState.data) {
-
-            // Buat array baru dengan memfilter keluar data yang ID-nya cocok
-            const updatedDataArray = currentState.data.data.filter(task => task.id !== id);
-
-            // Perbarui state `taskState` dengan array yang sudah tidak berisi data terhapus
-            set({
-                taskState: {
-                    ...currentState,
-                    data: {
-                        ...currentState.data,
-                        data: updatedDataArray
-                    }
-                }
-            });
-        }
-
     }
 })
 

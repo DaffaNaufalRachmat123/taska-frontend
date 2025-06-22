@@ -1,11 +1,12 @@
 // src/components/ProjectCard.tsx
 import React, { useEffect } from 'react';
-import { ChevronDownIcon, PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'; // Ganti ke outline untuk konsistensi
+import { ChevronDownIcon, PlusIcon, PencilSquareIcon, TrashIcon , ArrowRightCircleIcon } from '@heroicons/react/24/outline'; // Ganti ke outline untuk konsistensi
 import { useNavigate } from 'react-router-dom';
 import { SprintData } from '../interfaces/sprint-interface';
 import TaskItem from './TaskItem';
 import { useTaskStore } from '../stores/auth/task.store';
 import { TaskData } from '../interfaces/task-interface';
+import { useAuthStore } from '../stores/auth/auth.store';
 
 interface ProjectCardProps {
   sprint: SprintData;
@@ -26,9 +27,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onEditSprint,
   onDeleteSprint
 }) => {
+  const role = useAuthStore((state) => state.role)
   const taskList = useTaskStore(state => state.taskState);
   const getTask = useTaskStore(state => state.task);
-  const removeTaskFromList = useTaskStore(state => state.removeTaskItemFromList)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,21 +92,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {isEditDeleteShow && (
           <div className="flex items-center space-x-1">
             {/* Tombol Edit Sprint (yang sudah ada) */}
-            <button
-              onClick={handleEditClick}
-              className="p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
-              aria-label="Edit Sprint"
-            >
-              <PencilSquareIcon className="h-5 w-5" />
-            </button>
+            {role === "admin" && (
+              <button
+                onClick={handleEditClick}
+                className="p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+                aria-label="Edit Sprint"
+              >
+                <PencilSquareIcon className="h-5 w-5" />
+              </button>
+            )}
 
-            <button
-              onClick={handleDeleteClick}
-              className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
-              aria-label="Delete Sprint"
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
+            {role === "admin" && (
+              <button
+                onClick={handleDeleteClick}
+                className="p-2 rounded-full text-gray-500 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+                aria-label="Delete Sprint"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -136,8 +141,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         className="border-t border-gray-200 py-3 px-5 text-sm text-gray-600 flex items-center justify-between hover:bg-gray-100 rounded-b-lg cursor-pointer"
         onClick={isActive ? handleCardClick : handleToggleTasks}
       >
-        <span>{isActive ? 'View board' : 'View tasks'}</span>
-        <ChevronDownIcon className={`h-5 w-5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+        <span>{isActive ? <p style={{ fontWeight : 'bold' }}>View board</p> : 'View tasks'}</span>
+        {isActive ? <ArrowRightCircleIcon className={'h5 w-5'} /> : <ChevronDownIcon className={`h-5 w-5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />}
       </div>
 
       {isDropdownOpen && !isActive && (
@@ -147,13 +152,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {taskList.type === 'Loading' && <li className="text-sm text-gray-500 p-1">Loading tasks...</li>}
             {taskList.type === 'Success' && taskList.data?.data && taskList.data?.data.length > 0 ? (
               taskList.data.data.map(t => <TaskItem task={t} key={t.id} onDeleteFromList={(task : TaskData) => {
-                removeTaskFromList(task.id)
+                getTask(sprint.id , {} , 0)
               }} />)
             ) : (
               taskList.type !== 'Loading' && <li className="text-sm text-gray-500 p-2 bg-white rounded-md border text-center">No tasks in this sprint.</li>
             )}
           </ul>
-          {sprint.status !== 'completed' && (
+          {taskList.type !== 'Loading' && (
             <div
               onClick={(e) => {
                 e.stopPropagation();

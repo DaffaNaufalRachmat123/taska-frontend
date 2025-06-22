@@ -13,7 +13,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route index element={<DashboardPage />} />
           <Route path="sprint" element={<SprintPage />}/>
           <Route path="task/:id" element={<TaskDetailPage />} />
       </Route>

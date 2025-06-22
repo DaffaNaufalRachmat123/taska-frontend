@@ -21,13 +21,17 @@ const Navbar: React.FC = () => {
 
   const getOrganization = useOrganizationStore((store) => store.org);
   const org = useOrganizationStore((store) => store.orgState);
+  const isLoggedIn = useAuthStore((store) => store.isLoggedIn)
+
 
   React.useEffect(() => {
-    if (me.type === 'Idle') {
-      getLoggedInUser();
-      getOrganization();
+    if(!isLoggedIn){
+      navigate('/auth')
+    } else {
+      getLoggedInUser()
+      getOrganization()
     }
-  }, [getLoggedInUser, me]);
+  }, []);
 
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-50">

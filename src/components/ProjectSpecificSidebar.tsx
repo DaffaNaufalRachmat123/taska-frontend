@@ -32,7 +32,7 @@ const ProjectSpecificSidebar: React.FC = () => {
       <div>
         { /* Back To Dashboard Button */}
         <a
-          href="/dashboard"
+          href="/"
           className="flex items-center space-x-2 mb-4 px-3 py-2.5 text-sm rounded-md hover:bg-blue-50 hover:text-blue-600 group text-gray-700"
           title="Back to Dashboard"
         >

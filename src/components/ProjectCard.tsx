@@ -30,8 +30,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const role = useAuthStore((state) => state.role)
   const taskList = useTaskStore(state => state.taskState);
   const getTask = useTaskStore(state => state.task);
-  const resetState = useTaskStore((state) => state.resetState)
-  const removeTaskFromList = useTaskStore(state => state.removeTaskItemFromList)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -154,8 +152,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {taskList.type === 'Loading' && <li className="text-sm text-gray-500 p-1">Loading tasks...</li>}
             {taskList.type === 'Success' && taskList.data?.data && taskList.data?.data.length > 0 ? (
               taskList.data.data.map(t => <TaskItem task={t} key={t.id} onDeleteFromList={(task : TaskData) => {
-                removeTaskFromList(task.id)
-                resetState()
+                getTask(sprint.id , {} , 0)
               }} />)
             ) : (
               taskList.type !== 'Loading' && <li className="text-sm text-gray-500 p-2 bg-white rounded-md border text-center">No tasks in this sprint.</li>

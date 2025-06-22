@@ -65,7 +65,7 @@ const BoardContent: React.FC<BoardContentProps> = () => {
 
   useEffect(() => {
     if (sprintId) {
-      getTasks(sprintId);
+      getTasks(sprintId , {} , 100);
       sprintConfig();
     }
   }, [sprintId, getTasks, sprintConfig]);
@@ -211,7 +211,7 @@ const BoardContent: React.FC<BoardContentProps> = () => {
       
       // Refresh tasks after update to ensure consistency
       if (sprintId) {
-        getTasks(sprintId);
+        getTasks(sprintId , {} , 100);
       }
     } catch (error) {
       console.error("Update failed:", error);
@@ -222,11 +222,11 @@ const BoardContent: React.FC<BoardContentProps> = () => {
   const handleFilterChange = (selectedUserId: string | null): void => {
       if (selectedUserId) {
         if (sprintId) {
-          getTasks(sprintId, { assignee_id: selectedUserId });
+          getTasks(sprintId, { assignee_id: selectedUserId } , 100);
         }
       } else {
         if (sprintId) {
-          getTasks(sprintId);
+          getTasks(sprintId , {} , 100);
         }
       }
   };
@@ -253,7 +253,7 @@ const BoardContent: React.FC<BoardContentProps> = () => {
       await createTask(taskData);
 
       if (sprintForNewTask) {
-          getTasks(sprintForNewTask.id);
+          getTasks(sprintForNewTask.id , {}, 100);
       }
 
       handleCloseModal();

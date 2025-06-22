@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "./stores/auth/auth.store";
+import { useUserStore } from "./stores/auth/user.store";
 
 export const BASE_URL = process.env.REACT_APP_API_URL
 
@@ -40,7 +41,9 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       const { logout , setSessionExpired } = useAuthStore.getState()
+      const resetState = useUserStore((state) => state.resetState)
       logout();
+      resetState()
       setSessionExpired()
       const loginUrl = new URL('/auth', window.location.origin);
       window.location.href = loginUrl.toString();

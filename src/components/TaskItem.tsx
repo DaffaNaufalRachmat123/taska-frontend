@@ -119,6 +119,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDeleteFromList }) => {
         setToastState({ show: true, message: 'Berhasil menghapus task', type: 'success' })
         // Remove task 
         onDeleteFromList(task)
+        resetState()
         //resetState()
         console.log(`[+] LOADING SUCCESS TASK STATE [+]`)
         break

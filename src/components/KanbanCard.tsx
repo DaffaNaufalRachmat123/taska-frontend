@@ -45,7 +45,9 @@ const KanbanCard: React.FC<{ task: TaskData }> = ({ task }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    cursor: isDragging ? 'grabbing' : 'none',
+    // --- PERBAIKAN ---
+    // Mengubah 'none' menjadi 'grab' untuk menunjukkan item dapat diseret
+    cursor: isDragging ? 'grabbing' : 'grab',
   };
   
   // Get the correct icon component and color from the priority map

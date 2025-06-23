@@ -39,17 +39,6 @@ const YourWorkSection: React.FC = () => {
         >
           Sprint List
         </Link>
-        {data.type === 'Success' && (
-          <Link
-            to={`/task/${data.data?.data.id}`}
-            className={getLinkClassName(`/task/${data.data?.data.id}`)}
-          >
-            Assigned to me
-            <span className="ml-auto inline-block py-0.5 px-2.5 text-xs font-medium rounded-full bg-gray-200 text-gray-700">
-              0
-            </span>
-          </Link>
-        )}
       </nav>
     </div>
   );

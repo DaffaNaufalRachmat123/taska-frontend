@@ -15,7 +15,6 @@ function App() {
       <Route path="/" element={<MainLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="sprint" element={<SprintPage />}/>
-          <Route path="task/:id" element={<TaskDetailPage />} />
       </Route>
       <Route path='board/:sprintId' element={<ProjectBoardPage />} />
       <Route path="/auth" element={<AuthLoginPage />} />

@@ -12,12 +12,10 @@ export const DashboardPage: React.FC = () => {
   const response = useSprintStore((state) => state.currSprintState);
 
   useEffect(() => {
-    if (!response.type || response.type === 'Idle') {
-      getSprint();
-    }
+    getSprint();
 
     console.log(response)
-  }, [response.type])
+  }, [])
 
   const buildProjectCard = () => {
     switch(response.type){

@@ -71,7 +71,7 @@ const storeSprintApi: StateCreator<SprintState> = (set) => ({
                         currSprintState: {
                             type: 'Failed',
                             message: 'Unknown Error',
-                            code: 404
+                            code: 401
                         }
                     })
                 }
